@@ -16,12 +16,12 @@ public class City implements Parcelable {
     /**
      * Широта
      */
-    public final double latitude;
+    private final double latitude;
 
     /**
      * Долгота
      */
-    public final double longitude;
+    private final double longitude;
 
 
     public City(String name, double latitude, double longitude) {
@@ -35,6 +35,18 @@ public class City implements Parcelable {
         return "City[name=\"" + name + "\" lat=" + latitude + " lon=" + longitude + "]";
     }
 
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     // --------- Методы интерфейса Parcelable ------------
     @Override
@@ -66,4 +78,5 @@ public class City implements Parcelable {
             return new City[size];
         }
     };
+
 }
