@@ -1,5 +1,9 @@
 package ru.android_2019.citycam;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -7,7 +11,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.squareup.picasso.Picasso;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.webcams.Webcams;
 
 /**
  * Экран, показывающий веб-камеру одного выбранного города.
@@ -22,8 +32,12 @@ public class CityCamActivity extends AppCompatActivity {
 
     private City city;
 
+
+
+    @SuppressLint("ResourceType")
     private ImageView camImageView;
     private ProgressBar progressView;
+    private AsyncTask downloadImageTask = new DownloadImageTask();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +57,28 @@ public class CityCamActivity extends AppCompatActivity {
 
         progressView.setVisibility(View.VISIBLE);
 
+        // DownloadImageTask.execute(Webcams.createNearbyUrl(city.latitude,city.longitude));
         // Здесь должен быть код, инициирующий асинхронную загрузку изображения с веб-камеры
         // в выбранном городе.
+
+        downloadImageTask.execute();
+    }
+
+
+
+    private class DownloadImageTask extends AsyncTask <Void, Void, Bitmap> {
+
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            try {
+                URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
+                Picasso.get().load(String.valueOf(url)).into(camImageView);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
     private static final String TAG = "CityCam";
