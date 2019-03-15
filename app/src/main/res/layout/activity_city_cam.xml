@@ -6,6 +6,7 @@
     android:background="#fff">
 
     <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -21,12 +22,63 @@
 
         <ProgressBar
             android:id="@+id/progress"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
     </FrameLayout>
+    <RelativeLayout
+        android:id="@+id/table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#96ffc2"
+        android:layout_alignStart="@id/frame"
+        android:layout_alignLeft="@id/frame"
+        android:layout_below="@id/frame">
+    <RelativeLayout
+        android:id="@+id/firstColumn"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/textId"
+            android:layout_width="160dp"
+            android:layout_height="40dp"
+            android:text="@string/id_cam"/>
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textId"
+            android:text="@string/title_cam"/>
 
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/secondColumn"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toRightOf="@id/firstColumn"
+        android:layout_toEndOf="@id/firstColumn"
+        android:layout_alignTop="@id/firstColumn"
+        android:layout_alignBottom="@id/firstColumn"
+        >
+        <TextView
+            android:id="@+id/textTimezone"
+            android:layout_width="160dp"
+            android:layout_height="40dp"
+            android:text="@string/timezone_cam"/>
+        <TextView
+            android:id="@+id/textNumViews"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textTimezone"
+            android:text="@string/views_cam"/>
+    </RelativeLayout>
+    </RelativeLayout>
     <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
 
 </RelativeLayout>
