@@ -1,32 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff">
+    android:background="@android:color/background_light">
 
-    <FrameLayout
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true">
 
-        <ImageView
-            android:id="@+id/cam_image"
-            android:layout_width="320dp"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="#999"/>
+        android:background="#fff"
+        android:paddingBottom="20dp">
 
-        <ProgressBar
-            android:id="@+id/progress"
+        <TextView
+            android:id="@+id/activity_city_cam__title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/header"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/activity_city_cam__image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__title">
+
+            <ImageView
+                android:id="@+id/cam_image"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="#999"
+                android:contentDescription="@string/imagePlaceholder"
+                android:scaleType="centerCrop" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/activity_city_cam__status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
-    </FrameLayout>
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/status"
+            app:layout_constraintEnd_toStartOf="@id/activity_city_cam__views"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__image" />
 
-    <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
+        <TextView
+            android:id="@+id/activity_city_cam__views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/views"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_city_cam__status"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__image" />
 
-</RelativeLayout>
+
+        <TextView
+            android:id="@+id/activity_city_cam__mainInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/information"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__views" />
+
+        <TextView
+            android:id="@+id/activity_city_cam__city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/city_title"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__mainInfo" />
+
+        <TextView
+            android:id="@+id/activity_city_cam__timeZone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/time_zone"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__city" />
+
+
+        <TextView
+            android:id="@+id/activity_city_cam__id"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/id"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__timeZone" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
