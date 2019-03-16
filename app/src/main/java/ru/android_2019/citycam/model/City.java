@@ -11,17 +11,29 @@ public class City implements Parcelable {
     /**
      * Название
      */
-    public final String name;
+    private final String name;
 
     /**
      * Широта
      */
-    public final double latitude;
+    private final double latitude;
 
     /**
      * Долгота
      */
-    public final double longitude;
+    private final double longitude;
+
+    public String getName() {
+        return name;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
 
 
     public City(String name, double latitude, double longitude) {
