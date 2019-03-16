@@ -80,7 +80,7 @@ public class CityCamActivity extends AppCompatActivity implements TaskCallbacks 
 
     @Override
     public void onPostExecute() {
-
+        //camImageView.setImageBitmap();
     }
 
     private static final String TAG = "CityCam";

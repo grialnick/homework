@@ -13,11 +13,13 @@ import ru.android_2019.citycam.connection_api.ConnectionApi;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 import ru.android_2019.citycam.parsers.ResponseWebcamParser;
+import ru.android_2019.citycam.repository.WebcamsRepository;
 import ru.android_2019.citycam.webcams.Webcams;
 
 public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
 
     private TaskCallbacks callbacks;
+    private WebcamsRepository webcamsRepository = WebcamsRepository.getInstance();
 
     public DownloadImageTask (TaskCallbacks callbacks) {
         this.callbacks = callbacks;
@@ -48,8 +50,9 @@ public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
     @Override
     protected Bitmap doInBackground(City... cities) {
         City city = cities[0];
-        InputStream in;
+        InputStream in = null;
         HttpURLConnection connection = null;
+        Bitmap bitmap = null;
         try {
             URL url = Webcams.createNearbyUrl(city.getLatitude(), city.getLongitude());
             connection = ConnectionApi.getConnection(url);
@@ -59,8 +62,8 @@ public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
             }
             in = connection.getInputStream();
             List <Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-            String i = null;
-
+            webcamsRepository.putWebcamsListInRepository(webcams);
+            bitmap = webcamsRepository.getWebcamFromRepository().getImage();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -68,7 +71,14 @@ public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
             if(connection != null) {
                 connection.disconnect();
             }
+            if(in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return null;
+        return bitmap;
     }
 }
