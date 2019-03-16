@@ -24,6 +24,7 @@ import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import ru.android_2019.citycam.cache.MyCache;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.Webcams;
 
@@ -71,19 +72,26 @@ public class CityCamActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(city.name);
 
-        // Здесь должен быть код, инициирующий асинхронную загрузку изображения с веб-камеры
-        // в выбранном городе
         if (savedInstanceState != null) {
             // Пытаемся получить ранее запущенный таск
             downloadTask = (DownloadImageTask) getLastCustomNonConfigurationInstance();
         }
         if (downloadTask == null) {
-            try{
-                downloadTask = new DownloadImageTask(this);
-                downloadTask.execute(Webcams.createNearbyUrl(city.latitude,city.longitude));
-            } catch (MalformedURLException e){
-                Log.w(TAG, "Cannot create URL with lat : "+city.latitude+" and lng : "+city.longitude);
-                this.finish();
+            downloadTask = new DownloadImageTask(this);
+            if (MyCache.getInstance().getLru().get(city.name) == null) {
+                try {
+                    downloadTask.execute(Webcams.createNearbyUrl(city.latitude, city.longitude));
+                } catch (MalformedURLException e) {
+                    Log.w(TAG, "Cannot create URL with lat : " + city.latitude + " and lng : " + city.longitude);
+                    this.finish();
+                }
+            } else {
+                downloadTask.setMess(MyCache.getInstance().getLru().get(city.name));
+                downloadTask.setProgress(100);
+                if (downloadTask.getMess().getBitmap() == null) {
+                    downloadTask.setErrorOccured(true);
+                }
+                downloadTask.attachActivity(this);
             }
         } else {
             // Передаем в ранее запущенный таск текущий объект Activity
@@ -96,10 +104,11 @@ public class CityCamActivity extends AppCompatActivity {
         return this.downloadTask;
     }
 
-    private class DownloadImageTask extends AsyncTask<URL, Integer, DownloadImageTask.WebcamsMessage> {
+
+    public class DownloadImageTask extends AsyncTask<URL, Integer, DownloadImageTask.WebcamsMessage> {
 
         private CityCamActivity activity;
-        private Integer progress;
+        private Integer progress = 0;
         private WebcamsMessage mess;
         private Boolean errorOccured = false;
 
@@ -181,6 +190,9 @@ public class CityCamActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(WebcamsMessage result) {
+            if (MyCache.getInstance().getLru().get(city.name) == null && !errorOccured) {
+                MyCache.getInstance().getLru().put(city.name, mess);
+            }
             progress = 100;
             updateView();
         }
@@ -421,13 +433,29 @@ public class CityCamActivity extends AppCompatActivity {
             return timezone;
         }
 
+        public WebcamsMessage getMess() {
+            return mess;
+        }
+
+        public void setMess(WebcamsMessage mess) {
+            this.mess = mess;
+        }
+
+        public void setProgress(Integer progress) {
+            this.progress = progress;
+        }
+
+        public void setErrorOccured(Boolean errorOccured) {
+            this.errorOccured = errorOccured;
+        }
+
         //["result"]["webcams"][0]["id"]    ("1350096618")
         //["result"]["webcams"][0]["status"] if "active"
         //["result"]["webcams"][0]["title"]   ("St Petersburg: Saint Petersburg − Intermodal Terminal")
         //["result"]["webcams"][0]["image"]["current"]["preview"] ("https://images.webcams.travel/preview/1240664025.jpg")
         //["result"]["webcams"][0]["location"]["timezone"]  ("Europe/Moscow")
         //["result"]["webcams"][0]["statistics"]["views"]   (28718)
-        private class WebcamsMessage {
+        public class WebcamsMessage {
             private String id;
             private String status;
             private String title;
