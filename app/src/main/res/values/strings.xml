@@ -4,4 +4,5 @@
     <string name="title_cam">Место : </string>
     <string name="timezone_cam">Часовой пояс : </string>
     <string name="views_cam">Количество просмотров : </string>
+    <string name="error">Изображение не найдено</string>
 </resources>

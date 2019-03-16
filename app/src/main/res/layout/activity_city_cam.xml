@@ -27,6 +27,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
+        <TextView
+            android:id="@+id/textError"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/error"/>
     </FrameLayout>
     <RelativeLayout
         android:id="@+id/table"
@@ -46,11 +53,13 @@
         <TextView
             android:id="@+id/textId"
             android:layout_width="160dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:text="@string/id_cam"/>
         <TextView
             android:id="@+id/textTitle"
             android:layout_width="160dp"
+            android:minHeight="40dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/textId"
             android:text="@string/title_cam"/>
@@ -69,11 +78,13 @@
         <TextView
             android:id="@+id/textTimezone"
             android:layout_width="160dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:text="@string/timezone_cam"/>
         <TextView
             android:id="@+id/textNumViews"
             android:layout_width="160dp"
+            android:minHeight="40dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/textTimezone"
             android:text="@string/views_cam"/>

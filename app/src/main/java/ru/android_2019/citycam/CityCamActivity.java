@@ -1,6 +1,5 @@
 package ru.android_2019.citycam;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -47,6 +46,7 @@ public class CityCamActivity extends AppCompatActivity {
     private TextView titleTextView;
     private TextView timezoneTextView;
     private TextView countViewsTextView;
+    private TextView errorTextView;
 
     private DownloadImageTask downloadTask = null;
 
@@ -67,29 +67,28 @@ public class CityCamActivity extends AppCompatActivity {
         titleTextView = (TextView) findViewById(R.id.textTitle);
         timezoneTextView = (TextView) findViewById(R.id.textTimezone);
         countViewsTextView = (TextView) findViewById(R.id.textNumViews);
+        errorTextView = (TextView) findViewById(R.id.textError);
 
         getSupportActionBar().setTitle(city.name);
 
+        // Здесь должен быть код, инициирующий асинхронную загрузку изображения с веб-камеры
+        // в выбранном городе
         if (savedInstanceState != null) {
             // Пытаемся получить ранее запущенный таск
             downloadTask = (DownloadImageTask) getLastCustomNonConfigurationInstance();
         }
         if (downloadTask == null) {
             try{
-               downloadTask = new DownloadImageTask(this);
-               downloadTask.execute(Webcams.createNearbyUrl(city.latitude,city.longitude));
+                downloadTask = new DownloadImageTask(this);
+                downloadTask.execute(Webcams.createNearbyUrl(city.latitude,city.longitude));
             } catch (MalformedURLException e){
                 Log.w(TAG, "Cannot create URL with lat : "+city.latitude+" and lng : "+city.longitude);
-                finish();
+                this.finish();
             }
         } else {
             // Передаем в ранее запущенный таск текущий объект Activity
             downloadTask.attachActivity(this);
         }
-
-        // Здесь должен быть код, инициирующий асинхронную загрузку изображения с веб-камеры
-        // в выбранном городе
-
     }
 
     @Override
@@ -102,6 +101,7 @@ public class CityCamActivity extends AppCompatActivity {
         private CityCamActivity activity;
         private Integer progress;
         private WebcamsMessage mess;
+        private Boolean errorOccured = false;
 
         DownloadImageTask(CityCamActivity activity) {
             this.activity = activity;
@@ -115,15 +115,21 @@ public class CityCamActivity extends AppCompatActivity {
         void updateView() {
             if (activity != null) {
                 activity.progressView.setVisibility(progress != 100 ? View.VISIBLE : View.INVISIBLE);
-                activity.camImageView.setImageBitmap(mess.getBitmap());
-                String idText = getResources().getString(R.string.id_cam)+mess.getId();
-                activity.idTextView.setText(idText);
-                String titleText = getResources().getString(R.string.title_cam)+mess.getTitle();
-                activity.titleTextView.setText(titleText);
-                String timezoneText = getResources().getString(R.string.timezone_cam)+mess.getTimezone();
-                activity.timezoneTextView.setText(timezoneText);
-                String countViewsText = getResources().getString(R.string.views_cam)+mess.getViews();
-                activity.countViewsTextView.setText(countViewsText);
+                if(errorOccured) {
+                    activity.errorTextView.setVisibility(View.VISIBLE);
+                }
+                else {
+                    activity.errorTextView.setVisibility(View.INVISIBLE);
+                    activity.camImageView.setImageBitmap(mess.getBitmap());
+                    String idText = getResources().getString(R.string.id_cam)+mess.getId();
+                    activity.idTextView.setText(idText);
+                    String titleText = getResources().getString(R.string.title_cam)+mess.getTitle();
+                    activity.titleTextView.setText(titleText);
+                    String timezoneText = getResources().getString(R.string.timezone_cam)+mess.getTimezone();
+                    activity.timezoneTextView.setText(timezoneText);
+                    String countViewsText = getResources().getString(R.string.views_cam)+mess.getViews();
+                    activity.countViewsTextView.setText(countViewsText);
+                }
             }
         }
 
@@ -137,25 +143,32 @@ public class CityCamActivity extends AppCompatActivity {
             Bitmap bitmap = null;
             WebcamsMessage message = null;
             URL url = null;
+            String imageUrl = null;
             for (int i = 0; i < count; i++) {
                 try {
                     message = downloadWebcamsMessageByUrl(urls[i]);
+                    imageUrl = message.getPreview();
                 }
                 catch (IOException e) {
                     Log.w(TAG, "IO exception in downloadWebcamsMessageByUrl method");
+                    errorOccured = true;
+                    break;
                 }
                 try {
-                    url = new URL(message.getPreview());
+                    url = new URL(imageUrl);
                 }
                 catch (MalformedURLException e) {
                     Log.w(TAG, "MalformedURL exception");
+                    errorOccured = true;
+                    break;
                 }
                 try {
                     bitmap = downloadImageByUrl(url);
                 }
                 catch (IOException e) {
                     Log.w(TAG, "IO exception in downloadImageByUrl");
-                    e.printStackTrace();
+                    errorOccured = true;
+                    break;
                 }
                 message.setBitmap(bitmap);
                 if (isCancelled()) break;
@@ -227,13 +240,18 @@ public class CityCamActivity extends AppCompatActivity {
                     WebcamsMessage message = null;
                     while (iter.hasNext()) {
                         message = (WebcamsMessage) iter.next();
-                        if (!message.status.equals("active")) {
+                        if (!message.getStatus().equals("active")) {
                             iter.remove();
                         }
                     }
                     Integer maxRand = messagesList.size();
                     Random randomValue = new Random();
-                    result = messagesList.get(randomValue.nextInt(maxRand));
+                    if (maxRand == 0) {
+                        Log.w(TAG, "No one available camera at this place");
+                        throw new IOException("No one available camera at this place");
+                    } else {
+                        result = messagesList.get(randomValue.nextInt(maxRand));
+                    }
                 }
             } finally {
                 // Close Stream and disconnect HTTPS connection.
@@ -293,7 +311,7 @@ public class CityCamActivity extends AppCompatActivity {
             //Если не найдено ни одной камеры
             if (total == 0) {
                 Log.w(TAG, "There is no camera available");
-                finish();
+                throw  new IOException("There is no camera available");
             }
             return messages;
         }

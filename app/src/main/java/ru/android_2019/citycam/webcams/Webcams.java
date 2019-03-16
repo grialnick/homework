@@ -12,8 +12,6 @@ public final class Webcams {
 
     // Зарегистрируйтесь на http://ru.webcams.travel/developers/
     // и вставьте сюда ваш devid
-	//https://webcamstravel.p.rapidapi.com/webcams/list/nearby=40.11,12.05,250?lang=en&show=webcams:image,location,statistics
-
     private static final String BASE_URL = "https://webcamstravel.p.rapidapi.com/webcams/";
 
     private static final String PARAM_LANG = "lang";
