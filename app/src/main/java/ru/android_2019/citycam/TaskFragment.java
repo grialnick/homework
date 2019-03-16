@@ -2,6 +2,7 @@ package ru.android_2019.citycam;
 
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,12 +13,17 @@ import ru.android_2019.citycam.async_task.TaskCallbacks;
 import ru.android_2019.citycam.model.City;
 
 
+@SuppressLint("ValidFragment")
 public class TaskFragment extends Fragment {
 
-    public static final String CURRENT_CITY = "CURRENT_CITY";
     private TaskCallbacks callbacks;
     private City city;
     private DownloadImageTask downloadImageTask;
+
+
+    public TaskFragment (City city) {
+        this.city = city;
+    }
 
     @Override
     public void onDetach() {
@@ -38,7 +44,4 @@ public class TaskFragment extends Fragment {
         downloadImageTask = new DownloadImageTask(callbacks);
         downloadImageTask.execute(city);
     }
-
-
-
 }

@@ -14,10 +14,10 @@ public final class Webcams {
     private static final String PARAM_LANG = "lang";
     private static final String LANG = "en";
     private static final String PARAM_SHOW = "show";
-    private static final String SHOW = "webcams:image";
+    private static final String SHOW = "webcams:base,image,location";
 
     private static final String METHOD_NEARBY = "list/nearby";
-    private static final String RADIUS = "100";
+    private static final String RADIUS = "50";
     private static final String BASE_URL = "https://webcamstravel.p.rapidapi.com/webcams/";
 
 

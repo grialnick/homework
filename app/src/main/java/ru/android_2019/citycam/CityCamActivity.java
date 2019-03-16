@@ -46,7 +46,7 @@ public class CityCamActivity extends AppCompatActivity implements TaskCallbacks 
         FragmentManager manager = getSupportFragmentManager();
         mTaskFragment = (TaskFragment) manager.findFragmentByTag(TAG_TASK_FRAGMENT);
         if(mTaskFragment == null) {
-            mTaskFragment = new TaskFragment();
+            mTaskFragment = new TaskFragment(city);
             manager.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
         }
 
