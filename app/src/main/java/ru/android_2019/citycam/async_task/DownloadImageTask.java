@@ -2,6 +2,7 @@ package ru.android_2019.citycam.async_task;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +34,7 @@ public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        callbacks.onPostExecute();
+        callbacks.onPostExecute(bitmap);
     }
 
     @Override
@@ -79,6 +80,7 @@ public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
                 }
             }
         }
+        Log.d(String.valueOf(this), "AsyncTask");
         return bitmap;
     }
 }

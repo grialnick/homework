@@ -41,6 +41,6 @@ public class WebcamsRepository {
     }
 
     public void putWebcamsListInRepository(List <Webcam> webcams) {
-        webcams.addAll(webcams);
+        this.webcams.addAll(webcams);
     }
 }
