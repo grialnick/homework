@@ -47,7 +47,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         getSupportActionBar().setTitle(city.getName());
         progressView.setVisibility(View.VISIBLE);
         progressView.setMax(100);
-        mTaskFragment = TaskFragment.getInstance(getSupportFragmentManager(), city);
+        mTaskFragment = TaskFragment.getInstance(getSupportFragmentManager(),city);
 
         Log.d(String.valueOf(this), "Activity");
         startDownload();
