@@ -46,7 +46,7 @@ public class TaskFragment extends Fragment  {
         return taskFragment;
     }
 
-
+    //TODO выяснить, почему не работают onCreate и onAttach
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
