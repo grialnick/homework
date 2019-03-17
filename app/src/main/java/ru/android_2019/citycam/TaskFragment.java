@@ -1,49 +1,69 @@
 package ru.android_2019.citycam;
 
 
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
 
 import ru.android_2019.citycam.async_task.DownloadImageTask;
-import ru.android_2019.citycam.async_task.TaskCallbacks;
+import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.model.City;
 
 
-@SuppressLint("ValidFragment")
-public class TaskFragment extends Fragment {
+public class TaskFragment extends Fragment  {
 
-    private TaskCallbacks callbacks;
-    private City city;
+    private static final String TAG = "Task_Fragment";
+    private DownloadCallbacks callbacks;
     private DownloadImageTask downloadImageTask;
+    private static City currentCity;
 
+    public static  TaskFragment getInstance(FragmentManager fragmentManager, City city) {
 
-    public TaskFragment (City city) {
-        this.city = city;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        downloadImageTask = null;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        callbacks = (TaskCallbacks) context;
+        TaskFragment taskFragment = (TaskFragment) fragmentManager.findFragmentByTag(TaskFragment.TAG);
+        if(taskFragment == null) {
+            taskFragment = new TaskFragment();
+            fragmentManager.beginTransaction().add(taskFragment, TAG).commit();
+        }
+        currentCity = city;
+        return taskFragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        callbacks = (DownloadCallbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        cancelDownload();
+        super.onDestroy();
+    }
+
+
+    public void startDownload() {
+        cancelDownload();
         downloadImageTask = new DownloadImageTask(callbacks);
-        downloadImageTask.execute(city);
-        Log.d(String.valueOf(this), "Fragment");
+        downloadImageTask.execute(currentCity);
+    }
+
+    public void cancelDownload() {
+        if(downloadImageTask != null) {
+            downloadImageTask.cancel(true);
+        }
     }
 }

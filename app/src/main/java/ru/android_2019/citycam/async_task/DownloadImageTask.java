@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.connection_api.ConnectionApi;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
@@ -19,33 +20,35 @@ import ru.android_2019.citycam.webcams.Webcams;
 
 public class DownloadImageTask extends AsyncTask <City, Integer, Bitmap> {
 
-    private TaskCallbacks callbacks;
-    private WebcamsRepository webcamsRepository = WebcamsRepository.getInstance();
 
-    public DownloadImageTask (TaskCallbacks callbacks) {
+    private WebcamsRepository webcamsRepository = WebcamsRepository.getInstance();
+    private DownloadCallbacks callbacks;
+
+    public DownloadImageTask(DownloadCallbacks callbacks) {
         this.callbacks = callbacks;
     }
 
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+    }
 
     @Override
     protected void onPreExecute() {
-        callbacks.onPreExecute();
+        super.onPreExecute();
     }
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        callbacks.onPostExecute(bitmap);
+        if(bitmap != null && callbacks != null) {
+            callbacks.updateFromDownload(bitmap);
+            callbacks.finishDownloading();
+        }
     }
 
     @Override
-    protected void onProgressUpdate(Integer... percent) {
-        callbacks.onProgressUpdate(percent[0]);
-    }
-
-
-    @Override
-    protected void onCancelled() {
-        callbacks.onCancelled();
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
     }
 
     @Override
