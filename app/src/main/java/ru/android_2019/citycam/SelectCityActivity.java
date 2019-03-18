@@ -40,5 +40,4 @@ public class SelectCityActivity extends AppCompatActivity implements CitySelecte
     }
 
     private static final String TAG = "SelectCity";
-
 }
