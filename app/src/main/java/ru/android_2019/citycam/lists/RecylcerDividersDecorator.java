@@ -1,4 +1,4 @@
-package ru.android_2019.citycam.list;
+package ru.android_2019.citycam.lists;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

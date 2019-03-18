@@ -1,10 +1,12 @@
 package ru.android_2019.citycam.webcams;
 
+import android.graphics.BitmapFactory;
 import android.util.JsonReader;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,9 +16,12 @@ public class WebCamParser {
 
     private static final String LOG_TAG = "WebCamParser";
 
-    public  WebCamParser(){
+    String city;
 
+    public WebCamParser(String city) {
+        this.city = city;
     }
+
     public List<Webcam> parse(JsonReader reader) throws IOException {
         List<Webcam> webcamList = new LinkedList<>();
 
@@ -86,6 +91,9 @@ public class WebCamParser {
                         reader.skipValue();
                 }
             }
+            InputStream in = new URL(webcam.getUrl()).openStream();
+            webcam.setBitmap(BitmapFactory.decodeStream(in));
+            in.close();
             webcamList.add(webcam);
             reader.endObject();
         }

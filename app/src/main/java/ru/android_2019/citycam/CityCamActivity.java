@@ -1,50 +1,46 @@
 package ru.android_2019.citycam;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import ru.android_2019.citycam.database.WebcamDAO;
+import ru.android_2019.citycam.lists.RecylcerDividersDecorator;
+import ru.android_2019.citycam.lists.webcam_list.WebcamAdapter;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 import ru.android_2019.citycam.webcams.WebCamParser;
 import ru.android_2019.citycam.webcams.Webcams;
 
-/**
- * Экран, показывающий веб-камеру одного выбранного города.
- * Выбранный город передается в extra параметрах.
- */
-public class CityCamActivity extends Activity {
-
-    /**
-     * Обязательный extra параметр - объект City, камеру которого надо показать.
-     */
+public class CityCamActivity extends AppCompatActivity {
     public static final String EXTRA_CITY = "city";
     private static final String TAG = "CityCam";
     private static final String LOG_TAG = "CityCamActivityTag";
 
     private City city;
     private PictureDownloadTask downloadTask;
-    private ImageView camImageView;
-    private TextView textViewTitle;
-    private TextView textViewTime;
-    private ProgressBar progressView;
+
+    private WebcamAdapter adapter;
+    private List<Webcam> webcamList;
+    private RecyclerView recyclerView;
+    private WebcamDAO webcamDAO;
+    private ImageView imageViewNotFound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,78 +51,68 @@ public class CityCamActivity extends Activity {
             Log.w(TAG, "City object not provided in extra parameter: " + EXTRA_CITY);
             finish();
         }
-
         setContentView(R.layout.activity_city_cam);
-        camImageView = findViewById(R.id.cam_image);
-        progressView = findViewById(R.id.progress);
-        textViewTime = findViewById(R.id.activity_city_cam__time);
-        textViewTitle = findViewById(R.id.activity_city_cam__title);
+        recyclerView = findViewById(R.id.activity_city_cam__list);
+        imageViewNotFound = findViewById(R.id.activity_city_cam__image);
 
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.addItemDecoration(new RecylcerDividersDecorator(Color.DKGRAY));
 
-        if (getActionBar() != null) {
-            getActionBar().setTitle(city.getName());
+        webcamList = new ArrayList<>();
+        adapter = new WebcamAdapter(this, webcamList);
+        recyclerView.setAdapter(adapter);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(city.getName());
         }
 
-        progressView.setVisibility(View.VISIBLE);
+        webcamDAO = App.getInstance().getDataBase().webcamDAO();
+
         if (savedInstanceState != null) {
-            // Пытаемся получить ранее запущенный таск
-            downloadTask = (PictureDownloadTask) getLastNonConfigurationInstance();
+            downloadTask = (PictureDownloadTask) getLastCustomNonConfigurationInstance();
         }
         if (downloadTask == null) {
-            // Создаем новый таск, только если не было ранее запущенного таска
             downloadTask = new PictureDownloadTask(this);
             downloadTask.execute(city);
         } else {
-            // Передаем в ранее запущенный таск текущий объект Activity
             downloadTask.attachActivity(this);
         }
+
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public Object onRetainNonConfigurationInstance() {
-        // Этот метод вызывается при смене конфигурации, когда текущий объект
-        // Activity уничтожается. Объект, который мы вернем, не будет уничтожен,
-        // и его можно будет использовать в новом объекте Activity
+    public Object onRetainCustomNonConfigurationInstance() {
         downloadTask.attachActivity(null);
         return downloadTask;
     }
 
     static class PictureDownloadTask extends AsyncTask<City, Void, Void> {
-        private Bitmap bitmap;
-        private Webcam webcam;
-        private long count = -1;
-
+        boolean haveResultFromNetWork;
+        List<Webcam> list;
         private WeakReference<CityCamActivity> weakReference;
 
         PictureDownloadTask(CityCamActivity activity) {
             this.weakReference = new WeakReference<>(activity);
         }
 
-        /**
-         * Этот метод вызывается, когда новый объект Activity подключается к
-         * данному таску после смены конфигурации.
-         *
-         * @param activity новый объект Activity
-         */
         void attachActivity(CityCamActivity activity) {
             this.weakReference = new WeakReference<>(activity);
             updateView();
         }
 
-        /**
-         * Вызываем на UI потоке для обновления отображения прогресса и
-         * состояния в текущей активности.
-         */
         void updateView() {
             CityCamActivity activity = weakReference.get();
-            if (activity != null && webcam != null) {
-
-                activity.progressView.setVisibility(View.INVISIBLE);
-                activity.textViewTitle.setText(webcam.getTitle());
-                activity.textViewTime.setText(webcam.getTime() + " " + count);
-                if (bitmap != null) {
-                    activity.camImageView.setImageBitmap(bitmap);
+            if (activity != null) {
+                if (!list.isEmpty()) {
+                    activity.imageViewNotFound.setVisibility(View.GONE);
+                    activity.recyclerView.setVisibility(View.VISIBLE);
+                    activity.webcamList.clear();
+                    activity.webcamList.addAll(list);
+                    activity.adapter.notifyDataSetChanged();
+                } else {
+                    activity.recyclerView.setVisibility(View.GONE);
+                    activity.imageViewNotFound.setVisibility(View.VISIBLE);
+                    activity.imageViewNotFound.setImageResource(haveResultFromNetWork ? R.drawable.nothing : R.drawable.notfound);
                 }
             }
         }
@@ -134,6 +120,8 @@ public class CityCamActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            list = new ArrayList<>();
+            haveResultFromNetWork = false;
         }
 
         @Override
@@ -147,20 +135,35 @@ public class CityCamActivity extends Activity {
                 Log.d(LOG_TAG, httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());
 
                 JsonReader reader = new JsonReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                List<Webcam> webcams = new WebCamParser().parse(reader);
+                list = new WebCamParser(city.name).parse(reader);
 
-                count = webcams.size();
-                if (count > 0) {
-                    InputStream in = new URL(webcams.get(0).getUrl()).openStream();
-                    bitmap = BitmapFactory.decodeStream(in);
-                    webcam = webcams.get(0);
-                    in.close();
+                Iterator<Webcam> iterator = list.iterator();
+
+                while (iterator.hasNext()) {
+                    Webcam webcam = iterator.next();
+                    webcam.setCity(city.name);
+                    insertToDatabase(webcam);
                 }
+
                 reader.close();
+                haveResultFromNetWork = true;
             } catch (IOException e) {
                 e.printStackTrace();
+                getDataFromDatabase(city.name);
             }
             return null;
+        }
+
+        void getDataFromDatabase(String cityName) {
+            CityCamActivity activity = weakReference.get();
+            list = activity.webcamDAO.getWebcamsByCity(cityName);
+        }
+
+        void insertToDatabase(Webcam webcam) {
+            CityCamActivity cityCamActivity = weakReference.get();
+            if (cityCamActivity != null) {
+                cityCamActivity.webcamDAO.insert(webcam);
+            }
         }
 
         @Override

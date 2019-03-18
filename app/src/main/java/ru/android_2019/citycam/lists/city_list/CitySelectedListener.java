@@ -1,4 +1,4 @@
-package ru.android_2019.citycam.list;
+package ru.android_2019.citycam.lists.city_list;
 
 import ru.android_2019.citycam.model.City;
 

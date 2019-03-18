@@ -1,51 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff">
 
-    <FrameLayout
-        android:id="@+id/activity_city_cam__frame"
+
+    <ProgressBar
+        android:id="@+id/activity_city_cam__progress"
+        style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp">
+        android:layout_gravity="center"
+        android:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/cam_image"
-            android:layout_width="320dp"
-            android:layout_height="200dp"
-            android:background="#999"
-            android:scaleType="centerCrop" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/activity_city_cam__title"
+    <ImageView
+        android:id="@+id/activity_city_cam__image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/activity_city_cam__frame"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        tools:text="Webcam Title" />
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:scaleType="centerInside"
+        android:src="@drawable/notfound"
+        android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/activity_city_cam__time"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/activity_city_cam__list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/activity_city_cam__title"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        tools:text="Webcam Time" />
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
-</RelativeLayout>
+    </android.support.v7.widget.RecyclerView>
+
+
+</FrameLayout>

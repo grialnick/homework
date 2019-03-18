@@ -8,9 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import ru.android_2019.citycam.list.CitiesRecyclerAdapter;
-import ru.android_2019.citycam.list.CitySelectedListener;
-import ru.android_2019.citycam.list.RecylcerDividersDecorator;
+import ru.android_2019.citycam.lists.city_list.CitiesRecyclerAdapter;
+import ru.android_2019.citycam.lists.city_list.CitySelectedListener;
+import ru.android_2019.citycam.lists.RecylcerDividersDecorator;
 import ru.android_2019.citycam.model.City;
 
 public class SelectCityActivity extends AppCompatActivity implements CitySelectedListener {
