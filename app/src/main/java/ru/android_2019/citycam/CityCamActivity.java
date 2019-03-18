@@ -2,7 +2,6 @@ package ru.android_2019.citycam;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -25,12 +24,12 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
      * Обязательный extra параметр - объект City, камеру которого надо показать.
      */
     public static final String EXTRA_CITY = "city";
+    private static final String TAG_TASK_FRAGMENT = "task_fragment";
 
     private City city;
     private ImageView camImageView;
     private ProgressBar progressView;
     private TextView webcamTitle;
-    private Fragment cityCamFragment;
 
 
     @Override
@@ -48,23 +47,13 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         getSupportActionBar().setTitle(city.getName());
         progressView.setVisibility(View.VISIBLE);
         progressView.setMax(100);
-        if(savedInstanceState != null) {
-            cityCamFragment = (Fragment) getLastNonConfigurationInstance();
-        }
-        if(cityCamFragment == null) {
-            cityCamFragment = new CityCamFragment();
-            Bundle args = new Bundle();
-            args.putParcelable(EXTRA_CITY, city);
-            cityCamFragment.setArguments(args);
-        }
 
-
+        if(getSupportFragmentManager().findFragmentByTag(TAG_TASK_FRAGMENT) == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(CityCamFragment.newInstance(city), TAG_TASK_FRAGMENT)
+                    .commit();
+        }
         Log.d(String.valueOf(this), "CityCamActivity");
-    }
-
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        return this.cityCamFragment;
     }
 
     private static final String TAG = "CityCam";
@@ -87,6 +76,8 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
 
     @Override
     public void onProgressUpdate(int percent) {
-
+        if (percent == 100) {
+            progressView.setVisibility(View.GONE);
+        }
     }
 }

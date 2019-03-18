@@ -3,86 +3,95 @@ package ru.android_2019.citycam;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import ru.android_2019.citycam.async_tasks.DownloadImageTask;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 
+
 public class CityCamFragment extends Fragment implements DownloadCallbacks {
 
-    public static final String EXTRA_CITY = "city";
+    private static final String CITY = "extra_city";
     private DownloadCallbacks callbacks;
-    private City city;
-    private Webcam onProgressWebcam;
-    private DownloadImageTask downloadImageTask;
+    private static final Object NO_WEBCAM = new Object();
+    private boolean isActivityCreated = false;
+    private Object webcamToPublish = null;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-        downloadImageTask = new DownloadImageTask(this);
-        city = getArguments().getParcelable(EXTRA_CITY);
-        downloadImageTask.execute(city);
-        Log.d(String.valueOf(this), "Fragment Create!");
+    @NonNull
+    public static Fragment newInstance(City city) {
+        final Fragment result = new CityCamFragment();
+        final Bundle args = new Bundle();
+        args.putParcelable(CITY, city);
+        result.setArguments(args);
+        return result;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        callbacks = context instanceof DownloadCallbacks ? (DownloadCallbacks) context : null;
+        if (context instanceof DownloadCallbacks) {
+            callbacks = (DownloadCallbacks) context;
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         callbacks = null;
+        isActivityCreated = false;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        downloadImageTask.cancel(true);
-        downloadImageTask = null;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+        DownloadImageTask downloadImageTask = new DownloadImageTask(this);
+        downloadImageTask.execute((City) (getArguments() != null ? getArguments().getParcelable(CITY) : null));
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(callbacks != null && onProgressWebcam != null) {
-            callbacks.onPostExecute(onProgressWebcam);
+        isActivityCreated = true;
+        if (callbacks != null && webcamToPublish != null) {
+            callbacks.onProgressUpdate(100);
+            callbacks.onPostExecute(webcamToPublish != NO_WEBCAM? (Webcam) webcamToPublish : null);
+        }
+    }
+
+
+
+    @Override
+    public void onPreExecute() {
+        if (isActivityCreated && callbacks != null) {
+            callbacks.onPreExecute();
+        }
+    }
+
+    @Override
+    public void onProgressUpdate(final int percent) {
+        if (isActivityCreated && callbacks != null) {
+            callbacks.onProgressUpdate(percent);
         }
     }
 
     @Override
     public void onCancelled() {
-        if(callbacks != null) {
+        if (isActivityCreated && callbacks != null) {
             callbacks.onCancelled();
         }
     }
 
     @Override
     public void onPostExecute(final Webcam webcam) {
-        this.onProgressWebcam = webcam;
-        if(callbacks != null) {
-            callbacks.onPostExecute(onProgressWebcam);
-        }
-    }
-
-    @Override
-    public void onPreExecute() {
-        if(callbacks != null) {
-            callbacks.onPreExecute();
-        }
-    }
-
-    @Override
-    public void onProgressUpdate(int percent) {
-        if(callbacks != null) {
-            callbacks.onProgressUpdate(percent);
+        webcamToPublish = webcam != null ? webcam : NO_WEBCAM;
+        if (isActivityCreated && callbacks != null) {
+            callbacks.onProgressUpdate(100);
+            callbacks.onPostExecute(webcam);
         }
     }
 }

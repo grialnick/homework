@@ -9,12 +9,42 @@ import ru.android_2019.citycam.model.Webcam;
 
 public class WebcamsRepository {
 
-    public static Webcam getRandomWebcamfromRepositpry(List<Webcam> webcams) {
+    private List <Webcam> webcams;
+
+    private static  WebcamsRepository instance = new WebcamsRepository();
+
+    public static WebcamsRepository getInstance() {
+        return instance;
+    }
+
+    private WebcamsRepository () {
+        webcams = new ArrayList<>();
+    }
+
+    public Webcam getWebcamFromRepository() {
         if(webcams.isEmpty()) {
             throw new NoSuchElementException();
         }
         int randomIndex = new Random().nextInt(webcams.size());
-        return webcams.get(randomIndex);
+        Webcam webcam = webcams.get(randomIndex);
+        webcams.remove(randomIndex);
+        return webcam;
     }
 
+    public void putWebcamInRepository(Webcam webcam) {
+        if(webcam == null) {
+            throw new NullPointerException();
+        }
+        else {
+            webcams.add(webcam);
+        }
+    }
+
+    public void putWebcamsListInRepository(List <Webcam> webcams) {
+        this.webcams.clear();
+        if (webcams != null) {
+            this.webcams.addAll(webcams);
+        }
+    }
 }
+

@@ -1,7 +1,7 @@
 package ru.android_2019.citycam.async_tasks;
 
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
@@ -22,8 +22,9 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
 
 
     private DownloadCallbacks callbacks;
+    private WebcamsRepository webcamsRepository = WebcamsRepository.getInstance();
 
-    public DownloadImageTask(DownloadCallbacks callbacks) {
+    public DownloadImageTask(@NonNull final DownloadCallbacks callbacks) {
         this.callbacks = callbacks;
     }
 
@@ -43,8 +44,8 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
             }
             in = connection.getInputStream();
             List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-            webcam = WebcamsRepository.getRandomWebcamfromRepositpry(webcams);
-
+            webcamsRepository.putWebcamsListInRepository(webcams);
+            webcam = webcamsRepository.getWebcamFromRepository();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -75,23 +76,18 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if(callbacks != null) {
-            callbacks.onPreExecute();
-        }
+        callbacks.onPreExecute();
     }
 
     @Override
     protected void onPostExecute(Webcam webcam) {
-        if(callbacks != null) {
-            callbacks.onPostExecute(webcam);
-        }
+        callbacks.onPostExecute(webcam);
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-        if(callbacks != null) {
-            callbacks.onProgressUpdate(values[0]);
-        }
+    protected void onProgressUpdate(Integer... percent) {
+        super.onProgressUpdate(percent);
+        callbacks.onProgressUpdate(percent[0]);
+
     }
 }
