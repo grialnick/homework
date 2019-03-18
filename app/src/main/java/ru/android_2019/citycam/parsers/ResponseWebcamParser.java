@@ -64,7 +64,7 @@ public class ResponseWebcamParser  {
 
     private static Webcam readWebcam(JsonReader jsonReader) throws IOException {
         long id = 0;
-        String status = null;
+        String title = null;
         URL imageUrl = null;
 
         jsonReader.beginObject();
@@ -73,8 +73,8 @@ public class ResponseWebcamParser  {
             if(name.equals("id")) {
                 id = Integer.parseInt(jsonReader.nextString());
             }
-            else if(name.equals("status")) {
-                status = jsonReader.nextString();
+            else if(name.equals("title")) {
+                title = jsonReader.nextString();
             }
             else if(name.equals("image")) {
                 imageUrl = readImage(jsonReader);
@@ -84,7 +84,7 @@ public class ResponseWebcamParser  {
             }
         }
         jsonReader.endObject();
-        return new Webcam(id, status, imageUrl);
+        return new Webcam(id, title, imageUrl);
     }
 
     private static URL readImage(JsonReader jsonReader) throws IOException {

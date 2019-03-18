@@ -1,19 +1,18 @@
 package ru.android_2019.citycam;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.model.City;
-
+import ru.android_2019.citycam.model.Webcam;
 
 
 /**
@@ -30,8 +29,9 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
     private City city;
     private ImageView camImageView;
     private ProgressBar progressView;
-    private TaskFragment mTaskFragment;
-    private boolean downloading = false;
+    private TextView webcamTitle;
+    private Fragment cityCamFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,66 +44,49 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         setContentView(R.layout.activity_city_cam);
         camImageView = (ImageView) findViewById(R.id.cam_image);
         progressView = (ProgressBar) findViewById(R.id.progress);
+        webcamTitle = findViewById(R.id.activity_city__title);
         getSupportActionBar().setTitle(city.getName());
         progressView.setVisibility(View.VISIBLE);
         progressView.setMax(100);
-        mTaskFragment = TaskFragment.getInstance(getSupportFragmentManager(),city);
+        if(savedInstanceState != null) {
+            cityCamFragment = (Fragment) getLastNonConfigurationInstance();
+        }
+        if(cityCamFragment == null) {
+            cityCamFragment = new CityCamFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(EXTRA_CITY, city);
+            cityCamFragment.setArguments(args);
+        }
 
-        Log.d(String.valueOf(this), "Activity");
-        startDownload();
+
+        Log.d(String.valueOf(this), "CityCamActivity");
     }
 
-    private void startDownload() {
-        if(!downloading && mTaskFragment != null) {
-            mTaskFragment.startDownload();
-            downloading = true;
-        }
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return this.cityCamFragment;
     }
 
     private static final String TAG = "CityCam";
 
     @Override
-    public void updateFromDownload(Bitmap image) {
-        camImageView.setImageBitmap(image);
+    public void onCancelled() {
+
     }
 
     @Override
-    public NetworkInfo getActiveNetworkInfo() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo;
+    public void onPostExecute(Webcam webcam) {
+        camImageView.setImageBitmap(webcam.getImage());
+        webcamTitle.setText(webcam.getTitle());
     }
 
     @Override
-    public void onProgressUpdate(int progressCode, int percentComplete) {
-        switch (progressCode) {
-            case Progress.ERROR:
+    public void onPreExecute() {
 
-                break;
-            case Progress.CONNECT_SUCCESS:
-
-                break;
-
-            case Progress.GET_INPUT_STREAM_SUCCESS:
-
-                break;
-            case Progress.PROCESS_INPUT_STREAM_IN_PROGRESS:
-
-                break;
-
-            case Progress.PROCESS_INPUT_STREAM_SUCCESS:
-
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
-    public void finishDownloading() {
-        downloading = false;
-        if(mTaskFragment != null) {
-            mTaskFragment.cancelDownload();
-        }
+    public void onProgressUpdate(int percent) {
+
     }
 }
