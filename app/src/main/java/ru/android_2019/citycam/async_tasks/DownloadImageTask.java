@@ -46,6 +46,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
             List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
             webcamsRepository.putWebcamsListInRepository(webcams);
             webcam = webcamsRepository.getWebcamFromRepository();
+            webcams.clear();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }

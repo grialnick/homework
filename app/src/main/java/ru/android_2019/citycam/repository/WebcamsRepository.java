@@ -26,9 +26,7 @@ public class WebcamsRepository {
             throw new NoSuchElementException();
         }
         int randomIndex = new Random().nextInt(webcams.size());
-        Webcam webcam = webcams.get(randomIndex);
-        webcams.remove(randomIndex);
-        return webcam;
+        return webcams.get(randomIndex);
     }
 
     public void putWebcamInRepository(Webcam webcam) {
