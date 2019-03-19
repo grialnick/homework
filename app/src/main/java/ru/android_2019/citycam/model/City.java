@@ -23,6 +23,8 @@ public class City implements Parcelable {
      */
     private final double longitude;
 
+    private Webcam webcam;
+
     public String getName() {
         return name;
     }
@@ -40,6 +42,14 @@ public class City implements Parcelable {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public Webcam getWebcam(){
+        return this.webcam;
+    }
+
+    public void setWebcam(Webcam webcam) {
+        this.webcam = webcam;
     }
 
     @Override
