@@ -55,7 +55,7 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         city = Objects.requireNonNull(getArguments()).getParcelable(CITY);
-        City cacheCity = cityCache.getDataFromCache(city.getName());
+        City cacheCity = cityCache.getDataFromCache(city.name);
         if (cacheCity == null) {
             DownloadImageTask downloadImageTask = new DownloadImageTask(this);
             downloadImageTask.execute(city);
@@ -80,13 +80,6 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
     }
 
 
-
-    @Override
-    public void onPreExecute() {
-        if (isActivityCreated && callbacks != null) {
-            callbacks.onPreExecute();
-        }
-    }
 
     @Override
     public void onProgressUpdate(final int percent) {

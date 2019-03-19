@@ -7,6 +7,5 @@ import ru.android_2019.citycam.model.Webcam;
 public interface DownloadCallbacks {
     void onCancelled();
     void onPostExecute(Webcam webcam);
-    void onPreExecute();
     void onProgressUpdate(int percent);
 }

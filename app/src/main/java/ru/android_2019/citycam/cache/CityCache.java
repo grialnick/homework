@@ -21,7 +21,7 @@ public class CityCache {
     }
 
     public void putDataInCache(City city) {
-        cache.put(city.getName(), city);
+        cache.put(city.name, city);
     }
 
     public City getDataFromCache(String name) {

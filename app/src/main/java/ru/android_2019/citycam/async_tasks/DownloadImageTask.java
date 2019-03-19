@@ -1,5 +1,6 @@
 package ru.android_2019.citycam.async_tasks;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -9,26 +10,27 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Random;
 
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.connection_api.ConnectionApi;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 import ru.android_2019.citycam.parsers.ResponseWebcamParser;
-import ru.android_2019.citycam.repository.WebcamsRepository;
 import ru.android_2019.citycam.webcams.Webcams;
 
 public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
 
 
     private DownloadCallbacks callbacks;
-    private WebcamsRepository webcamsRepository = WebcamsRepository.getInstance();
 
     public DownloadImageTask(@NonNull final DownloadCallbacks callbacks) {
         this.callbacks = callbacks;
     }
 
 
+    @SuppressLint("WrongThread")
     @Override
     protected Webcam doInBackground(City... cities) {
         City city = cities[0];
@@ -36,7 +38,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
         HttpURLConnection connection = null;
         Webcam webcam = null;
         try {
-            URL url = Webcams.createNearbyUrl(city.getLatitude(), city.getLongitude());
+            URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
             connection = ConnectionApi.getConnection(url);
             connection.connect();
             if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -44,11 +46,13 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
             }
             in = connection.getInputStream();
             List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-            webcamsRepository.putWebcamsListInRepository(webcams);
-            webcam = webcamsRepository.getWebcamFromRepository();
+            webcam = getRandomWebcam(webcams);
             webcams.clear();
         } catch (java.io.IOException e) {
             e.printStackTrace();
+        }
+        catch (NoSuchElementException e){
+            cancel(true);
         }
         finally {
             if(connection != null) {
@@ -66,18 +70,20 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
         return webcam;
     }
 
+    private Webcam getRandomWebcam (List <Webcam> webcams) {
+        if(webcams.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        int randomIndex = new Random().nextInt(webcams.size());
+        return webcams.get(randomIndex);
+    }
+
     @Override
     protected void onCancelled() {
         super.onCancelled();
         if(callbacks != null) {
             callbacks.onCancelled();
         }
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        callbacks.onPreExecute();
     }
 
     @Override
@@ -89,6 +95,5 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
     protected void onProgressUpdate(Integer... percent) {
         super.onProgressUpdate(percent);
         callbacks.onProgressUpdate(percent[0]);
-
     }
 }

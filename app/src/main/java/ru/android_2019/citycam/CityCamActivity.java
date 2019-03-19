@@ -44,7 +44,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         camImageView = (ImageView) findViewById(R.id.cam_image);
         progressView = (ProgressBar) findViewById(R.id.progress);
         webcamTitle = findViewById(R.id.activity_city__title);
-        getSupportActionBar().setTitle(city.getName());
+        getSupportActionBar().setTitle(city.name);
         progressView.setVisibility(View.VISIBLE);
         progressView.setMax(100);
 
@@ -60,7 +60,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
 
     @Override
     public void onCancelled() {
-
+        webcamTitle.setText("Sorry, unexpected error! We not found any webcams in City:)");
     }
 
     @Override
@@ -69,10 +69,6 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         webcamTitle.setText(webcam.getTitle());
     }
 
-    @Override
-    public void onPreExecute() {
-
-    }
 
     @Override
     public void onProgressUpdate(int percent) {

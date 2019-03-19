@@ -13,11 +13,12 @@ import ru.android_2019.citycam.model.Webcam;
 
 public class ResponseWebcamParser  {
 
-    private static List <Webcam> webcams = new ArrayList<>();
+
 
     public static List<Webcam> listResponseWebcam(InputStream in, String charset)
             throws IOException {
         JsonReader jsonReader = new JsonReader(new InputStreamReader(in, charset));
+        List <Webcam> webcams = new ArrayList<>();
         jsonReader.beginObject();
         while (jsonReader.hasNext()) {
             String name = jsonReader.nextName();
@@ -40,6 +41,7 @@ public class ResponseWebcamParser  {
 
     private static List<Webcam> readResponse(JsonReader jsonReader) throws IOException {
         jsonReader.beginObject();
+        List <Webcam> webcams = new ArrayList<>();
         while (jsonReader.hasNext()) {
             String name = jsonReader.nextName();
             if(name.equals("webcams")) {
@@ -54,6 +56,7 @@ public class ResponseWebcamParser  {
     }
 
     private static List<Webcam> readWebcamsList(JsonReader jsonReader) throws IOException {
+        List <Webcam> webcams = new ArrayList<>();
         jsonReader.beginArray();
         while (jsonReader.hasNext()) {
             webcams.add(readWebcam(jsonReader));
