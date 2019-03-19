@@ -40,9 +40,9 @@ public class CityCamActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Handler handler = new Handler() {
+        Handler handler = new Handler(new Handler.Callback() {
             @Override
-            public void handleMessage(Message msg) {
+            public boolean handleMessage(Message msg) {
                 if (msg.what == HANDLER_CODE_SUCCESS) {
                     if (msg.obj == null) {
                         Toast.makeText(getApplicationContext(), "Видеокамер не найдено", Toast.LENGTH_SHORT).show();
@@ -50,11 +50,14 @@ public class CityCamActivity extends AppCompatActivity {
                         webcam = (Webcam) msg.obj;
                         updateWebcam();
                     }
+                    return true;
                 } else if (msg.what == HANDLER_CODE_BAD) {
                     Toast.makeText(getApplicationContext(), "Ошибка загрузки", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
+                return false;
             }
-        };
+        });
 
         city = getIntent().getParcelableExtra(EXTRA_CITY);
         if (city == null) {
