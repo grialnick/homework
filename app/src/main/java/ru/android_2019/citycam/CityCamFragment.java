@@ -88,12 +88,6 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
         }
     }
 
-    @Override
-    public void onCancelled() {
-        if (isActivityCreated && callbacks != null) {
-            callbacks.onCancelled();
-        }
-    }
 
     @Override
     public void onPostExecute(final Webcam webcam) {

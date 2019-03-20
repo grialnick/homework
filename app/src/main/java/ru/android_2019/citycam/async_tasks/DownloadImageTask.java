@@ -2,7 +2,6 @@ package ru.android_2019.citycam.async_tasks;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
@@ -25,7 +23,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
 
     private DownloadCallbacks callbacks;
 
-    public DownloadImageTask(@NonNull final DownloadCallbacks callbacks) {
+    public DownloadImageTask(DownloadCallbacks callbacks) {
         this.callbacks = callbacks;
     }
 
@@ -46,13 +44,9 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
             }
             in = connection.getInputStream();
             List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-            webcam = getRandomWebcam(webcams);
-            webcams.clear();
+            webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
         } catch (java.io.IOException e) {
             e.printStackTrace();
-        }
-        catch (NoSuchElementException e){
-            cancel(true);
         }
         finally {
             if(connection != null) {
@@ -70,21 +64,6 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
         return webcam;
     }
 
-    private Webcam getRandomWebcam (List <Webcam> webcams) {
-        if(webcams.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        int randomIndex = new Random().nextInt(webcams.size());
-        return webcams.get(randomIndex);
-    }
-
-    @Override
-    protected void onCancelled() {
-        super.onCancelled();
-        if(callbacks != null) {
-            callbacks.onCancelled();
-        }
-    }
 
     @Override
     protected void onPostExecute(Webcam webcam) {

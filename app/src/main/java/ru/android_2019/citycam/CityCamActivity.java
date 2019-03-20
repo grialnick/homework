@@ -58,15 +58,16 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
 
     private static final String TAG = "CityCam";
 
-    @Override
-    public void onCancelled() {
-        webcamTitle.setText("Sorry, unexpected error! We not found any webcams in City:)");
-    }
 
     @Override
     public void onPostExecute(Webcam webcam) {
-        camImageView.setImageBitmap(webcam.getImage());
-        webcamTitle.setText(webcam.getTitle());
+        if(webcam == null) {
+            camImageView.setImageResource(R.drawable.image);
+            webcamTitle.setText("Sorry, we not found any Webcam in this City:(");
+        } else {
+            camImageView.setImageBitmap(webcam.getImage());
+            webcamTitle.setText(webcam.getTitle());
+        }
     }
 
 
