@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.webcams.cache.WebcamCache;
 import ru.android_2019.citycam.webcams.tasks.WebcamsTask;
 
 /**
@@ -23,11 +23,14 @@ public class CityCamActivity extends AppCompatActivity {
      */
     public static final String EXTRA_CITY = "city";
 
+    public static final String EXTRA_WEBCAM_CACHE = "webcamCached";
+
     private City city;
     private ImageView camImageView;
     private ProgressBar progressView;
     private TextView titleImageView;
     private WebcamsTask task;
+    private WebcamCache webcamCache;
 
     public City getCity() {
         return city;
@@ -43,6 +46,10 @@ public class CityCamActivity extends AppCompatActivity {
 
     public TextView getTitleImageView() {
         return titleImageView;
+    }
+
+    public WebcamCache getWebcamCache() {
+        return webcamCache;
     }
 
     @Override
@@ -67,6 +74,8 @@ public class CityCamActivity extends AppCompatActivity {
         camImageView = (ImageView) findViewById(R.id.cam_image);
         progressView = (ProgressBar) findViewById(R.id.progress);
         titleImageView = (TextView) findViewById(R.id.cam_image_title);
+
+        webcamCache = WebcamCache.getInstance();
 
         getSupportActionBar().setTitle(city.name);
 

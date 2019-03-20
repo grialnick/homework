@@ -15,7 +15,9 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.android_2019.citycam.CityCamActivity;
+import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.api.WebcamsAPI;
+import ru.android_2019.citycam.webcams.cache.WebcamCache;
 import ru.android_2019.citycam.webcams.exceptions.BadResponseException;
 import ru.android_2019.citycam.webcams.model.Webcam;
 
@@ -38,26 +40,33 @@ public class WebcamsTask extends AsyncTask<Void, Void, Webcam> {
         Webcam webcam = null;
 
         try {
-            double latitude = activity.getCity().latitude;
-            double longitude = activity.getCity().longitude;
-            connection = WebcamsAPI.createNearbyUrl(latitude, longitude, DEFAULT_RADIUS);
-            connection.connect();
+            City city = activity.getCity();
+            WebcamCache webcamCache = activity.getWebcamCache();
+            webcam = webcamCache.getWebcamFromMemory(city.name);
 
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                List<Webcam> webcams = parseWebcamsResponse(inputStream, "UTF-8");
-                webcam = pickWebcamRandom(webcams);
+            if (webcam == null) {
+                connection = WebcamsAPI.createNearbyUrl(city.latitude, city.longitude, DEFAULT_RADIUS);
+                connection.connect();
 
-                if (webcam != null){
-                    URL imageUrl = new URL(webcam.getImageUrl());
-                    Log.i(TAG, "URL of image: " + imageUrl);
-                    webcam.setBitmap(BitmapFactory.decodeStream(imageUrl.openStream()));
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    List<Webcam> webcams = parseWebcamsResponse(inputStream, "UTF-8");
+                    webcam = getFirstWebcam(webcams);
+
+                    if (webcam != null) {
+                        URL imageUrl = new URL(webcam.getImageUrl());
+                        Log.i(TAG, "URL of image: " + imageUrl);
+                        webcam.setBitmap(BitmapFactory.decodeStream(imageUrl.openStream()));
+                        webcamCache.setWebcamToMemory(city.name, webcam);
+                    } else {
+                        Log.i(TAG, "No images found");
+                    }
                 } else {
-                    Log.i(TAG, "No images found");
+                    throw new BadResponseException("HTTP: " + connection.getResponseCode()
+                            + ", " + connection.getResponseMessage());
                 }
             } else {
-                throw new BadResponseException("HTTP: " + connection.getResponseCode()
-                        + ", " + connection.getResponseMessage());
+                Log.i(TAG, "Image of " + city.name + " was taken from cache");
             }
 
         } catch (IOException e) {
@@ -93,6 +102,14 @@ public class WebcamsTask extends AsyncTask<Void, Void, Webcam> {
                         .setText(ru.android_2019.citycam.R.string.image_not_found);
             }
         }
+    }
+
+    private static Webcam getFirstWebcam(List<Webcam> webcams) {
+        if (webcams.size() == 0) {
+            return null;
+        }
+
+        return webcams.get(0);
     }
 
     private static Webcam pickWebcamRandom(List<Webcam> webcams) {
