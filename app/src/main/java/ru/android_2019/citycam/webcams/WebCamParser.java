@@ -16,7 +16,7 @@ public class WebCamParser {
 
     private static final String LOG_TAG = "WebCamParser";
 
-    String city;
+    private String city;
 
     public WebCamParser(String city) {
         this.city = city;
@@ -81,6 +81,9 @@ public class WebCamParser {
             Webcam webcam = new Webcam();
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
+                    case "id":
+                        webcam.setId(reader.nextLong());
+                        break;
                     case "image":
                         readImage(webcam, reader);
                         break;
@@ -94,6 +97,7 @@ public class WebCamParser {
             InputStream in = new URL(webcam.getUrl()).openStream();
             webcam.setBitmap(BitmapFactory.decodeStream(in));
             in.close();
+            webcam.setCity(city);
             webcamList.add(webcam);
             reader.endObject();
         }

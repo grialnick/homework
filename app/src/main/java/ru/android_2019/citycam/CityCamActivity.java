@@ -17,7 +17,6 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import ru.android_2019.citycam.database.WebcamDAO;
@@ -30,8 +29,7 @@ import ru.android_2019.citycam.webcams.Webcams;
 
 public class CityCamActivity extends AppCompatActivity {
     public static final String EXTRA_CITY = "city";
-    private static final String TAG = "CityCam";
-    private static final String LOG_TAG = "CityCamActivityTag";
+    private static final String LOG_TAG = "CityCam";
 
     private City city;
     private PictureDownloadTask downloadTask;
@@ -48,7 +46,7 @@ public class CityCamActivity extends AppCompatActivity {
 
         city = getIntent().getParcelableExtra(EXTRA_CITY);
         if (city == null) {
-            Log.w(TAG, "City object not provided in extra parameter: " + EXTRA_CITY);
+            Log.w(LOG_TAG, "City object not provided in extra parameter: " + EXTRA_CITY);
             finish();
         }
         setContentView(R.layout.activity_city_cam);
@@ -77,7 +75,6 @@ public class CityCamActivity extends AppCompatActivity {
         } else {
             downloadTask.attachActivity(this);
         }
-
     }
 
     @Override
@@ -136,14 +133,7 @@ public class CityCamActivity extends AppCompatActivity {
 
                 JsonReader reader = new JsonReader(new InputStreamReader(httpURLConnection.getInputStream()));
                 list = new WebCamParser(city.name).parse(reader);
-
-                Iterator<Webcam> iterator = list.iterator();
-
-                while (iterator.hasNext()) {
-                    Webcam webcam = iterator.next();
-                    webcam.setCity(city.name);
-                    insertToDatabase(webcam);
-                }
+                insertToDatabase(list);
 
                 reader.close();
                 haveResultFromNetWork = true;
@@ -159,10 +149,10 @@ public class CityCamActivity extends AppCompatActivity {
             list = activity.webcamDAO.getWebcamsByCity(cityName);
         }
 
-        void insertToDatabase(Webcam webcam) {
+        void insertToDatabase(List<Webcam> webcamList) {
             CityCamActivity cityCamActivity = weakReference.get();
             if (cityCamActivity != null) {
-                cityCamActivity.webcamDAO.insert(webcam);
+                cityCamActivity.webcamDAO.insertOrUpdateList(webcamList);
             }
         }
 
@@ -171,7 +161,5 @@ public class CityCamActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             updateView();
         }
-
     }
-
 }

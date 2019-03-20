@@ -25,7 +25,8 @@ public final class Webcams {
      */
     public static URL createNearbyUrl(double latitude, double longitude)
             throws MalformedURLException {
-        Uri uri = Uri.parse(BASE_URL + METHOD_NEARBY + "=" + Double.toString(latitude) + "," + Double.toString(longitude) + "," + RADIUS).buildUpon()
+        Uri uri = Uri.parse(BASE_URL + METHOD_NEARBY + "=" +
+                Double.toString(latitude) + "," + Double.toString(longitude) + "," + RADIUS).buildUpon()
                 .appendQueryParameter(PARAM_LANG, LANG)
                 .appendQueryParameter(PARAM_SHOW, SHOW)
                 .build();

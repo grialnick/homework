@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 @Entity()
 @TypeConverters(WebcamConverter.class)
 public class Webcam {
-    @PrimaryKey(autoGenerate =  true)
+    @PrimaryKey
     private long id;
 
     private String city;

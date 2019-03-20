@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="#fff">
 
-
     <ProgressBar
         android:id="@+id/activity_city_cam__progress"
         style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
@@ -17,8 +16,8 @@
         android:id="@+id/activity_city_cam__image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
         android:layout_gravity="center"
+        android:layout_margin="20dp"
         android:scaleType="centerInside"
         android:src="@drawable/notfound"
         android:visibility="gone" />
@@ -27,9 +26,6 @@
         android:id="@+id/activity_city_cam__list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
-
-    </android.support.v7.widget.RecyclerView>
-
+        android:visibility="gone" />
 
 </FrameLayout>

@@ -16,8 +16,8 @@ import ru.android_2019.citycam.R;
 import ru.android_2019.citycam.model.Webcam;
 
 public class WebcamAdapter extends RecyclerView.Adapter<WebcamAdapter.WebcamHolder> {
-    List<Webcam> webcamList;
-    Context context;
+    private List<Webcam> webcamList;
+    private Context context;
 
     public WebcamAdapter(Context context, List<Webcam> webcamList) {
         this.context = context;

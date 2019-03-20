@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#fff">
 
-
     <ImageView
         android:id="@+id/item_city_cam__image"
         android:layout_width="320dp"
