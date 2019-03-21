@@ -40,11 +40,6 @@ public class WebcamTask extends AsyncTask<Void, Void, Webcam> implements Seriali
     protected Webcam doInBackground(Void... voids) {
         Webcam webcam = null;
         try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        try {
             HttpURLConnection connection = Webcams.createNearbyUrlConnection(city.longitude, city.latitude);
             JsonReader reader = new JsonReader(new InputStreamReader(connection.getInputStream()));
             reader.beginObject();

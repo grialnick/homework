@@ -21,6 +21,7 @@ public class CityCamActivity extends AppCompatActivity {
      * Обязательный extra параметр - объект City, камеру которого надо показать.
      */
     public static final String EXTRA_CITY = "city";
+    public static final String SAVED_WEBCAM = "webcam";
 
     private City city;
     private Webcam webcam;
@@ -49,6 +50,13 @@ public class CityCamActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(city.name);
 
+        if (savedInstanceState != null) {
+            webcam = (Webcam) savedInstanceState.getSerializable(SAVED_WEBCAM);
+            if (webcam != null) {
+                updateWebcam(webcam);
+            }
+        }
+
         webcamTask = (WebcamTask) getLastCustomNonConfigurationInstance();
         if (webcamTask == null) {
             webcamTask = new WebcamTask(this, city);
@@ -65,6 +73,13 @@ public class CityCamActivity extends AppCompatActivity {
             webcamTask.detachActivity();
         }
         return webcamTask;
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(SAVED_WEBCAM, webcam);
+        super.onSaveInstanceState(outState);
     }
 
     public void updateWebcam(Webcam webcam) {

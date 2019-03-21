@@ -2,7 +2,9 @@ package ru.android_2019.citycam.webcams;
 
 import android.graphics.Bitmap;
 
-public class Webcam {
+import java.io.Serializable;
+
+public class Webcam implements Serializable {
     private final int id;
     private final String status;
     private final String title;
