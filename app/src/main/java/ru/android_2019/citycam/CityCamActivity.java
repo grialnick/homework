@@ -1,7 +1,6 @@
 package ru.android_2019.citycam;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -62,20 +61,14 @@ public class CityCamActivity extends AppCompatActivity {
         progressView.setVisibility(View.VISIBLE);
 
         if (savedInstanceState != null) {
-            // Пытаемся получить ранее запущенный таск
             webcamTask = (WebcamTask) getLastCustomNonConfigurationInstance();
         }
         if (webcamTask == null) {
-            // Создаем новый таск, только если не было ранее запущенного таска
             webcamTask = new WebcamTask(this, city);
             webcamTask.execute();
         } else {
-            // Передаем в ранее запущенный таск текущий объект Activity
             webcamTask.attachActivity(this);
         }
-
-        // Здесь должен быть код, инициирующий асинхронную загрузку изображения с веб-камеры
-        // в выбранном городе.
     }
 
     public void updateView(ArrayList<WebcamInfo> webcamInfo, Bitmap bitmap) {
