@@ -1,15 +1,12 @@
 package ru.android_2019.citycam;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.Webcam;
@@ -25,11 +22,9 @@ public class CityCamActivity extends AppCompatActivity {
      */
     public static final String EXTRA_CITY = "city";
 
-    public static final int HANDLER_CODE_SUCCESS = 1;
-    public static final int HANDLER_CODE_BAD = 2;
-
     private City city;
     private Webcam webcam;
+    private WebcamTask webcamTask;
 
     private ImageView camImageView;
     private ProgressBar progressView;
@@ -39,25 +34,6 @@ public class CityCamActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if (msg.what == HANDLER_CODE_SUCCESS) {
-                    if (msg.obj == null) {
-                        Toast.makeText(getApplicationContext(), "Видеокамер не найдено", Toast.LENGTH_SHORT).show();
-                    } else {
-                        webcam = (Webcam) msg.obj;
-                        updateWebcam();
-                    }
-                    return true;
-                } else if (msg.what == HANDLER_CODE_BAD) {
-                    Toast.makeText(getApplicationContext(), "Ошибка загрузки", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                return false;
-            }
-        });
 
         city = getIntent().getParcelableExtra(EXTRA_CITY);
         if (city == null) {
@@ -73,12 +49,26 @@ public class CityCamActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(city.name);
 
-        progressView.setVisibility(View.VISIBLE);
-
-        new WebcamThread(handler, city).start();
+        webcamTask = (WebcamTask) getLastCustomNonConfigurationInstance();
+        if (webcamTask == null) {
+            webcamTask = new WebcamTask(this, city);
+            webcamTask.execute();
+        } else {
+            webcamTask.attachActivity(this);
+        }
     }
 
-    private void updateWebcam() {
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        super.onRetainCustomNonConfigurationInstance();
+        if (webcamTask != null) {
+            webcamTask.detachActivity();
+        }
+        return webcamTask;
+    }
+
+    public void updateWebcam(Webcam webcam) {
+        this.webcam = webcam;
         if (webcam != null) {
             camImageView.setImageBitmap(webcam.getPreview());
             progressView.setVisibility(View.GONE);

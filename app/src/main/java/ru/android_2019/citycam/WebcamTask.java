@@ -2,11 +2,13 @@ package ru.android_2019.citycam;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Handler;
+import android.os.AsyncTask;
 import android.util.JsonReader;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -14,24 +16,35 @@ import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.Webcam;
 import ru.android_2019.citycam.webcams.Webcams;
 
-import static ru.android_2019.citycam.CityCamActivity.HANDLER_CODE_BAD;
-import static ru.android_2019.citycam.CityCamActivity.HANDLER_CODE_SUCCESS;
+public class WebcamTask extends AsyncTask<Void, Void, Webcam> implements Serializable {
 
-public class WebcamThread extends Thread {
-
-    private final Handler handler;
+    private CityCamActivity activity;
     private final City city;
+    private String errorMessage;
 
-    public WebcamThread(Handler handler, City city) {
+    public WebcamTask(CityCamActivity activity, City city) {
         super();
-        this.handler = handler;
+        this.activity = activity;
         this.city = city;
     }
 
+    public void attachActivity(CityCamActivity activity) {
+        this.activity = activity;
+    }
+
+    public void detachActivity() {
+        this.activity = null;
+    }
+
     @Override
-    public void run() {
+    protected Webcam doInBackground(Void... voids) {
+        Webcam webcam = null;
         try {
-            Webcam webcam = null;
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
             HttpURLConnection connection = Webcams.createNearbyUrlConnection(city.longitude, city.latitude);
             JsonReader reader = new JsonReader(new InputStreamReader(connection.getInputStream()));
             reader.beginObject();
@@ -41,19 +54,33 @@ public class WebcamThread extends Thread {
                 if (name.equals("status")) {
                     String status = reader.nextString();
                     if (!status.equals("OK")) {
-                        handler.obtainMessage(HANDLER_CODE_BAD).sendToTarget();
-                        return;
+                        errorMessage = "Ошибка подключения";
+                        break;
                     }
                 } else if (name.equals("result")) {
                     webcam = parseWebcam(reader);
+                    if (webcam == null) {
+                        errorMessage = "Видеокамер не найдено";
+                    }
                 }
             }
             reader.endObject();
             connection.disconnect();
-            handler.obtainMessage(HANDLER_CODE_SUCCESS, webcam).sendToTarget();
         } catch (Exception e) {
+            errorMessage =  "Ошибка подключения";
             e.printStackTrace();
-            handler.obtainMessage(HANDLER_CODE_BAD).sendToTarget();
+        }
+        return webcam;
+    }
+
+    @Override
+    protected void onPostExecute(Webcam webcam) {
+        if (activity != null) {
+            if (webcam == null) {
+                Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show();
+            } else {
+                activity.updateWebcam(webcam);
+            }
         }
     }
 
