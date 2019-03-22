@@ -17,7 +17,8 @@
             android:layout_width="320dp"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:background="#999"/>
+            android:background="#999"
+            android:visibility="invisible" />
 
         <ProgressBar
             android:id="@+id/progress"
