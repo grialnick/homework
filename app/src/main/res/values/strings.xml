@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="not_found">Not Found</string>
+    <string name="id">id:&#160;</string>
+    <string name="status">status:&#160;</string>
+    <string name="title">title:&#160;</string>
+    <string name="city">city:&#160;</string>
+    <string name="region">region:&#160;</string>
+    <string name="country">country:&#160;</string>
+    <string name="continent">continent:&#160;</string>
+    <string name="wiki">wiki:&#160;</string>
+    <string name="views">views:&#160;</string>
 </resources>
