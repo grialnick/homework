@@ -16,12 +16,7 @@ class JsonParser {
             reader.beginObject();
             while (reader.hasNext()) {
                 String name = reader.nextName();
-                if (name.equals("status")) {
-                    String status = reader.nextString();
-                    if (!status.equals("OK")) {
-                        throw new IOException("isn't OK");
-                    }
-                } else if (name.equals("result")) {
+                if (name.equals("result")) {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         name = reader.nextName();
@@ -32,6 +27,8 @@ class JsonParser {
                         }
                     }
                     reader.endObject();
+                } else {
+                    reader.skipValue();
                 }
             }
             reader.endObject();
