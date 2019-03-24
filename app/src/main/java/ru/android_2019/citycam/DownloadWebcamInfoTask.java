@@ -34,16 +34,7 @@ class DownloadWebcamInfoTask extends AsyncTask<URL, Void, Webcam> {
             activity.setWiki(webcam.getLocation().getWikiURL());
             activity.setViews(webcam.getViews());
         } else {
-            activity.setBitmap(null);
-            activity.setId(null);
-            activity.setStatus(null);
-            activity.setTitle(null);
-            activity.setCity(null);
-            activity.setRegion(null);
-            activity.setCountry(null);
-            activity.setContinent(null);
-            activity.setWiki(null);
-            activity.setViews(null);
+            activity.setImageNotFound();
         }
     }
 
@@ -99,7 +90,7 @@ class DownloadWebcamInfoTask extends AsyncTask<URL, Void, Webcam> {
             }
         }
 
-        if (webcams.isEmpty()) {
+        if (webcams == null || webcams.isEmpty()) {
             return null;
         }
         int index = 0;

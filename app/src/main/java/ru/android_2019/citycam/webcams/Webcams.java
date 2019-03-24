@@ -9,9 +9,9 @@ import java.net.URL;
  * Константы для работы с Webcams API
  */
 
-    // Зарегистрируйтесь на http://ru.webcams.travel/developers/
+// Зарегистрируйтесь на http://ru.webcams.travel/developers/
 
-    public final class Webcams {
+public final class Webcams {
     private static final String BASE_URL = "https://webcamstravel.p.rapidapi.com/webcams/";
 
     private static final String PARAM_LANG = "lang";

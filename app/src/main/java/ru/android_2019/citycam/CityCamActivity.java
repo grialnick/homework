@@ -41,12 +41,12 @@ public class CityCamActivity extends AppCompatActivity {
     private TextView viewsView;
     private DownloadWebcamInfoTask downloadTask;
 
+    public void setImageNotFound() {
+        imageNotFoundView.setVisibility(View.VISIBLE);
+    }
+
     public void setBitmap(Bitmap bitmap) {
-        if (bitmap != null) {
-            camImageView.setImageBitmap(bitmap);
-        } else {
-            imageNotFoundView.setVisibility(View.VISIBLE);
-        }
+        camImageView.setImageBitmap(bitmap);
     }
 
     public void setInvisible() {
@@ -54,76 +54,39 @@ public class CityCamActivity extends AppCompatActivity {
     }
 
     public void setId(String id) {
-        if (id != null) {
-            idView.append(id);
-        } else {
-            idView.append(getString(R.string.not_found));
-        }
+        idView.append(id);
     }
 
     public void setStatus(String status) {
-        if (status != null) {
-            statusView.append(status);
-        } else {
-            statusView.append(getString(R.string.not_found));
-        }
-
+        statusView.append(status);
     }
 
     public void setCity(String city) {
-        if (city != null) {
-            cityView.append(city);
-        } else {
-            cityView.append(getString(R.string.not_found));
-        }
+        cityView.append(city);
     }
 
     public void setRegion(String region) {
-        if (region != null) {
-            regionView.append(region);
-        } else {
-            regionView.append(getString(R.string.not_found));
-        }
+        regionView.append(region);
     }
 
     public void setCountry(String country) {
-        if (country != null) {
-            countryView.append(country);
-        } else {
-            countryView.append(getString(R.string.not_found));
-        }
+        countryView.append(country);
     }
 
     public void setContinent(String continent) {
-        if (continent != null) {
-            continentView.append(continent);
-        } else {
-            continentView.append(getString(R.string.not_found));
-        }
+        continentView.append(continent);
     }
 
     public void setWiki(String wiki) {
-        if (wiki != null) {
-            wikiView.append(wiki);
-        } else {
-            wikiView.append(getString(R.string.not_found));
-        }
+        wikiView.append(wiki);
     }
 
     public void setViews(String views) {
-        if (views != null) {
-            viewsView.append(views);
-        } else {
-            viewsView.append(getString(R.string.not_found));
-        }
+        viewsView.append(views);
     }
 
     public void setTitle(String title) {
-        if (title != null) {
-            titleView.append(title);
-        } else {
-            titleView.append(getString(R.string.not_found));
-        }
+        titleView.append(title);
     }
 
     @Override
