@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ import java.util.Random;
 import javax.net.ssl.HttpsURLConnection;
 
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.model.inbound.Category;
 import ru.android_2019.citycam.model.inbound.WebcamResponse;
 import ru.android_2019.citycam.serializer.Serializer;
 import ru.android_2019.citycam.webcams.Webcams;
@@ -45,6 +47,18 @@ public class CityCamActivity extends AppCompatActivity {
     private ImageView camImageView;
     private ProgressBar progressView;
     private DownloadTask downloadTask;
+    private TextView cityTextView;
+    private TextView regionTextView;
+    private TextView countryTextView;
+    private TextView continentTextView;
+    private TextView latitudeTextView;
+    private TextView longitudeTextView;
+    private TextView timezoneTextView;
+    private TextView wiki_linkTextView;
+    private TextView categoriesTextView;
+    private TextView viewsTextView;
+    private TextView webcam_linkTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +71,19 @@ public class CityCamActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city_cam);
-        camImageView = (ImageView) findViewById(R.id.cam_image);
-        progressView = (ProgressBar) findViewById(R.id.progress);
+        camImageView = findViewById(R.id.cam_image);
+        progressView = findViewById(R.id.progress);
+        cityTextView = findViewById(R.id.city);
+        regionTextView = findViewById(R.id.region);
+        countryTextView = findViewById(R.id.country);
+        continentTextView = findViewById(R.id.continent);
+        latitudeTextView = findViewById(R.id.latitude);
+        longitudeTextView = findViewById(R.id.longitude);
+        timezoneTextView = findViewById(R.id.timezone);
+        wiki_linkTextView = findViewById(R.id.wiki_link);
+        categoriesTextView = findViewById(R.id.categories);
+        viewsTextView = findViewById(R.id.views);
+        webcam_linkTextView = findViewById(R.id.webcam_link);
 
         getSupportActionBar().setTitle(city.name);
 
@@ -73,7 +98,7 @@ public class CityCamActivity extends AppCompatActivity {
                 downloadTask.execute(Webcams.createNearbyUrl(city.latitude, city.longitude));
             } catch (MalformedURLException e) {
                 Log.w(TAG, "Wrong params for creating url");
-                this.finish();
+                finish();
             }
         } else {
             downloadTask.attachActivity(this);
@@ -89,10 +114,20 @@ public class CityCamActivity extends AppCompatActivity {
 
         private WebcamResponse response;
         private Bitmap image;
+        private int choosenCam;
 
-        private WebcamEntity(WebcamResponse response, Bitmap image) {
+        public WebcamEntity(WebcamResponse response, Bitmap image, int choosenCam) {
             this.response = response;
             this.image = image;
+            this.choosenCam = choosenCam;
+        }
+
+        private int getChoosenCam() {
+            return choosenCam;
+        }
+
+        private void setChoosenCam(int choosenCam) {
+            this.choosenCam = choosenCam;
         }
 
         private WebcamResponse getResponse() {
@@ -114,7 +149,7 @@ public class CityCamActivity extends AppCompatActivity {
 
     private class DownloadTask extends AsyncTask<URL, Integer, WebcamEntity> {
         private static final String HEADER_KEY = "X-RapidAPI-Key";
-        private static final String HEADER_VALUE = "34e3573172mshba6a93651c07a6ap14feedjsn9dd95419b0b0";
+        private static final String HEADERUE = "34e3573172mshba6a93651c07a6ap14feedjsn9dd95419b0b0";
         private CityCamActivity activity;
         private Integer progress;
         private Context appContext;
@@ -139,6 +174,77 @@ public class CityCamActivity extends AppCompatActivity {
                 } else {
                     activity.camImageView.setImageBitmap(webcamEntity.getImage());
                     activity.camImageView.setVisibility(View.VISIBLE);
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getCity().isEmpty()) {
+                        activity.cityTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getCity());
+                    } else {
+                        activity.cityTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getRegion().isEmpty()) {
+                        activity.regionTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getRegion());
+                    } else {
+                        activity.regionTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getCountry().isEmpty()) {
+                        activity.countryTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getCountry());
+                    } else {
+                        activity.countryTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getContinent().isEmpty()) {
+                        activity.continentTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getContinent());
+                    } else {
+                        activity.continentTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getLatitude() != null) {
+                        activity.latitudeTextView.append(String.format("%f", webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getLatitude()));
+                    } else {
+                        activity.latitudeTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getLongitude() != null) {
+                        activity.longitudeTextView.append(String.format("%f", webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getLongitude()));
+                    } else {
+                        activity.longitudeTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getTimezone().isEmpty()) {
+                        activity.timezoneTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getTimezone());
+                    } else {
+                        activity.timezoneTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getWikipedia().isEmpty()) {
+                        activity.wiki_linkTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getLocation().getWikipedia());
+                    } else {
+                        activity.wiki_linkTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getCategory().isEmpty()) {
+                        StringBuilder sb = new StringBuilder();
+                        for (Category category : webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getCategory()) {
+                            sb.append(category.getName().toLowerCase());
+                            sb.append(", ");
+                        }
+                        sb.replace(sb.length() - 2, sb.length() - 1, "");
+                        activity.categoriesTextView.append(sb.toString());
+                    } else {
+                        activity.categoriesTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getStatistics().getViews() != null) {
+                        activity.viewsTextView.append(String.format("%d", webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getStatistics().getViews()));
+                    } else {
+                        activity.viewsTextView.append(getResources().getString(R.string.no_info));
+                    }
+                    if (!webcamEntity.getResponse().getResult().getWebcams().get(webcamEntity.getChoosenCam()).getUrl().getCurrent().getDesktop().isEmpty()) {
+                        activity.webcam_linkTextView.append(webcamEntity.getResponse().getResult()
+                                .getWebcams().get(webcamEntity.getChoosenCam()).getUrl().getCurrent().getDesktop());
+                    } else {
+                        activity.webcam_linkTextView.append(getResources().getString(R.string.no_info));
+                    }
                 }
             }
         }
@@ -157,7 +263,7 @@ public class CityCamActivity extends AppCompatActivity {
                 webcamConnection = (HttpsURLConnection) url.openConnection();
                 webcamConnection.setRequestMethod("GET");
                 webcamConnection.setDoInput(true);
-                webcamConnection.setRequestProperty(HEADER_KEY, HEADER_VALUE);
+                webcamConnection.setRequestProperty(HEADER_KEY, HEADERUE);
                 webcamConnection.connect();
                 if (webcamConnection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
                     throw new IllegalArgumentException(webcamConnection.getResponseMessage());
@@ -167,8 +273,9 @@ public class CityCamActivity extends AppCompatActivity {
                     Log.w(TAG, "No cams there");
                     throw new NoSuchElementException("No cams there");
                 }
+                webcamEntity.setChoosenCam(new Random().nextInt(webcamEntity.getResponse().getResult().getWebcams().size()));
                 URL imageUrl = new URL(webcamEntity.getResponse().getResult().getWebcams()
-                        .get(new Random().nextInt(webcamEntity.getResponse().getResult().getWebcams().size()))
+                        .get(webcamEntity.getChoosenCam())
                         .getImage().getCurrent().getPreview());
                 imageConnection = (HttpURLConnection) imageUrl.openConnection();
                 imageConnection.setRequestMethod("GET");
@@ -222,7 +329,7 @@ public class CityCamActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            WebcamEntity webcamEntity = new WebcamEntity(null, null);
+            WebcamEntity webcamEntity = new WebcamEntity(null, null, 0);
             webcamEntity.setResponse(Serializer.getInstance().fromJson(response.toString(), WebcamResponse.class));
             return webcamEntity;
         }

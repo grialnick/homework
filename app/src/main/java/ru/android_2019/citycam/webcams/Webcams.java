@@ -14,7 +14,7 @@ public final class Webcams {
 
     private static final String METHOD_NEARBY = "list/nearby=";
     private static final String REQUEST_PARAMS = "?lang=ru&show=webcams:category,image,location,statistics,url";
-    private static final String RADIUS = "25";
+    private static final String RADIUS = "30";
 
     /**
      * Возвращает URL для выполнения запроса Webcams API для получения
