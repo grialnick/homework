@@ -4,6 +4,12 @@ package ru.android_2019.citycam.model.inbound;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import ru.android_2019.citycam.model.inbound.image.Current;
+import ru.android_2019.citycam.model.inbound.image.Daylight;
+import ru.android_2019.citycam.model.inbound.image.Sizes;
+
 public class Image {
 
     @SerializedName("current")
@@ -17,25 +23,27 @@ public class Image {
     private Sizes sizes;
     @SerializedName("update")
     @Expose
-    private int update;
+    private Long update;
     @SerializedName("interval")
     @Expose
-    private int interval;
+    private Long interval;
 
     /**
      * No args constructor for use in serialization
+     * 
      */
     public Image() {
     }
 
     /**
+     * 
      * @param update
      * @param sizes
      * @param interval
      * @param current
      * @param daylight
      */
-    public Image(Current current, Daylight daylight, Sizes sizes, int update, int interval) {
+    public Image(Current current, Daylight daylight, Sizes sizes, Long update, Long interval) {
         super();
         this.current = current;
         this.daylight = daylight;
@@ -83,30 +91,35 @@ public class Image {
         return this;
     }
 
-    public int getUpdate() {
+    public Long getUpdate() {
         return update;
     }
 
-    public void setUpdate(int update) {
+    public void setUpdate(Long update) {
         this.update = update;
     }
 
-    public Image withUpdate(int update) {
+    public Image withUpdate(Long update) {
         this.update = update;
         return this;
     }
 
-    public int getInterval() {
+    public Long getInterval() {
         return interval;
     }
 
-    public void setInterval(int interval) {
+    public void setInterval(Long interval) {
         this.interval = interval;
     }
 
-    public Image withInterval(int interval) {
+    public Image withInterval(Long interval) {
         this.interval = interval;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("current", current).append("daylight", daylight).append("sizes", sizes).append("update", update).append("interval", interval).toString();
     }
 
 }

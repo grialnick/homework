@@ -85,12 +85,12 @@ public class CityCamActivity extends AppCompatActivity {
         return this.downloadTask;
     }
 
-    private static class Webcam {
+    private static class WebcamEntity {
 
         private WebcamResponse response;
         private Bitmap image;
 
-        private Webcam(WebcamResponse response, Bitmap image) {
+        private WebcamEntity(WebcamResponse response, Bitmap image) {
             this.response = response;
             this.image = image;
         }
@@ -112,13 +112,13 @@ public class CityCamActivity extends AppCompatActivity {
         }
     }
 
-    private class DownloadTask extends AsyncTask<URL, Integer, Webcam> {
+    private class DownloadTask extends AsyncTask<URL, Integer, WebcamEntity> {
         private static final String HEADER_KEY = "X-RapidAPI-Key";
         private static final String HEADER_VALUE = "34e3573172mshba6a93651c07a6ap14feedjsn9dd95419b0b0";
         private CityCamActivity activity;
         private Integer progress;
         private Context appContext;
-        private Webcam webcam;
+        private WebcamEntity webcamEntity;
 
         DownloadTask(CityCamActivity activity) {
             this.appContext = activity.getApplicationContext();
@@ -133,11 +133,11 @@ public class CityCamActivity extends AppCompatActivity {
         void updateView() {
             if (activity != null) {
                 activity.progressView.setVisibility(progress != 100 ? View.VISIBLE : View.INVISIBLE);
-                if (webcam.getImage() == null) {
+                if (webcamEntity.getImage() == null) {
                     Toast.makeText(activity, R.string.no_cam, Toast.LENGTH_SHORT).show();
                     activity.finish();
                 } else {
-                    activity.camImageView.setImageBitmap(webcam.getImage());
+                    activity.camImageView.setImageBitmap(webcamEntity.getImage());
                     activity.camImageView.setVisibility(View.VISIBLE);
                 }
             }
@@ -148,7 +148,7 @@ public class CityCamActivity extends AppCompatActivity {
             activity.progressView.setVisibility(View.VISIBLE);
         }
 
-        protected Webcam doInBackground(URL... urls) {
+        protected WebcamEntity doInBackground(URL... urls) {
             URL url = urls[0];
             InputStream inputStream = null;
             HttpURLConnection imageConnection = null;
@@ -162,22 +162,13 @@ public class CityCamActivity extends AppCompatActivity {
                 if (webcamConnection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
                     throw new IllegalArgumentException(webcamConnection.getResponseMessage());
                 }
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(webcamConnection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                webcam = new Webcam(null, null);
-                webcam.setResponse(Serializer.getInstance().fromJson(response.toString(), WebcamResponse.class));
-                if (webcam.getResponse().getResult().getWebcams().size() == 0) {
+                webcamEntity = createWebcam(webcamConnection.getInputStream());
+                if (webcamEntity.getResponse().getResult().getWebcams().size() == 0) {
                     Log.w(TAG, "No cams there");
                     throw new NoSuchElementException("No cams there");
                 }
-                URL imageUrl = new URL(webcam.getResponse().getResult().getWebcams()
-                        .get(new Random().nextInt(webcam.getResponse().getResult().getWebcams().size()))
+                URL imageUrl = new URL(webcamEntity.getResponse().getResult().getWebcams()
+                        .get(new Random().nextInt(webcamEntity.getResponse().getResult().getWebcams().size()))
                         .getImage().getCurrent().getPreview());
                 imageConnection = (HttpURLConnection) imageUrl.openConnection();
                 imageConnection.setRequestMethod("GET");
@@ -188,7 +179,7 @@ public class CityCamActivity extends AppCompatActivity {
                 }
                 inputStream = imageConnection.getInputStream();
                 if (inputStream != null) {
-                    webcam.setImage(BitmapFactory.decodeStream(inputStream));
+                    webcamEntity.setImage(BitmapFactory.decodeStream(inputStream));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -207,15 +198,33 @@ public class CityCamActivity extends AppCompatActivity {
                     webcamConnection.disconnect();
                 }
             }
-            return webcam;
+            return webcamEntity;
         }
 
         protected void onProgressUpdate(Integer... progress) {
         }
 
-        protected void onPostExecute(Webcam webcam) {
+        protected void onPostExecute(WebcamEntity webcamEntity) {
             progress = 100;
             updateView();
+        }
+
+        private WebcamEntity createWebcam(InputStream inputStream) {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(inputStream));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            try {
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            WebcamEntity webcamEntity = new WebcamEntity(null, null);
+            webcamEntity.setResponse(Serializer.getInstance().fromJson(response.toString(), WebcamResponse.class));
+            return webcamEntity;
         }
 
     }

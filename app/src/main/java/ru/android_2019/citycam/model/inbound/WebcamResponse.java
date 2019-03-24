@@ -4,6 +4,8 @@ package ru.android_2019.citycam.model.inbound;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class WebcamResponse {
 
     @SerializedName("status")
@@ -15,11 +17,13 @@ public class WebcamResponse {
 
     /**
      * No args constructor for use in serialization
+     * 
      */
     public WebcamResponse() {
     }
 
     /**
+     * 
      * @param result
      * @param status
      */
@@ -53,6 +57,11 @@ public class WebcamResponse {
     public WebcamResponse withResult(Result result) {
         this.result = result;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("status", status).append("result", result).toString();
     }
 
 }

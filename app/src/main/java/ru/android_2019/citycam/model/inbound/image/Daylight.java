@@ -1,37 +1,41 @@
 
-package ru.android_2019.citycam.model.inbound;
+package ru.android_2019.citycam.model.inbound.image;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Sizes {
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+public class Daylight {
 
     @SerializedName("icon")
     @Expose
-    private Icon icon;
+    private String icon;
     @SerializedName("thumbnail")
     @Expose
-    private Thumbnail thumbnail;
+    private String thumbnail;
     @SerializedName("preview")
     @Expose
-    private Preview preview;
+    private String preview;
     @SerializedName("toenail")
     @Expose
-    private Toenail toenail;
+    private String toenail;
 
     /**
      * No args constructor for use in serialization
+     * 
      */
-    public Sizes() {
+    public Daylight() {
     }
 
     /**
+     * 
      * @param icon
      * @param thumbnail
      * @param preview
      * @param toenail
      */
-    public Sizes(Icon icon, Thumbnail thumbnail, Preview preview, Toenail toenail) {
+    public Daylight(String icon, String thumbnail, String preview, String toenail) {
         super();
         this.icon = icon;
         this.thumbnail = thumbnail;
@@ -39,56 +43,61 @@ public class Sizes {
         this.toenail = toenail;
     }
 
-    public Icon getIcon() {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(Icon icon) {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 
-    public Sizes withIcon(Icon icon) {
+    public Daylight withIcon(String icon) {
         this.icon = icon;
         return this;
     }
 
-    public Thumbnail getThumbnail() {
+    public String getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(Thumbnail thumbnail) {
+    public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 
-    public Sizes withThumbnail(Thumbnail thumbnail) {
+    public Daylight withThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
         return this;
     }
 
-    public Preview getPreview() {
+    public String getPreview() {
         return preview;
     }
 
-    public void setPreview(Preview preview) {
+    public void setPreview(String preview) {
         this.preview = preview;
     }
 
-    public Sizes withPreview(Preview preview) {
+    public Daylight withPreview(String preview) {
         this.preview = preview;
         return this;
     }
 
-    public Toenail getToenail() {
+    public String getToenail() {
         return toenail;
     }
 
-    public void setToenail(Toenail toenail) {
+    public void setToenail(String toenail) {
         this.toenail = toenail;
     }
 
-    public Sizes withToenail(Toenail toenail) {
+    public Daylight withToenail(String toenail) {
         this.toenail = toenail;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("icon", icon).append("thumbnail", thumbnail).append("preview", preview).append("toenail", toenail).toString();
     }
 
 }

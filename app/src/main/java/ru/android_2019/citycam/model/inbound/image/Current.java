@@ -1,8 +1,10 @@
 
-package ru.android_2019.citycam.model.inbound;
+package ru.android_2019.citycam.model.inbound.image;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Current {
 
@@ -21,11 +23,13 @@ public class Current {
 
     /**
      * No args constructor for use in serialization
+     * 
      */
     public Current() {
     }
 
     /**
+     * 
      * @param icon
      * @param thumbnail
      * @param preview
@@ -89,6 +93,11 @@ public class Current {
     public Current withToenail(String toenail) {
         this.toenail = toenail;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("icon", icon).append("thumbnail", thumbnail).append("preview", preview).append("toenail", toenail).toString();
     }
 
 }

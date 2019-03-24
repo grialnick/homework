@@ -13,8 +13,8 @@ public final class Webcams {
     private static final String BASE_URL = "https://webcamstravel.p.rapidapi.com/webcams/";
 
     private static final String METHOD_NEARBY = "list/nearby=";
-    private static final String REQUSET_PARAMS = "?lang=en&show=webcams:image";
-    private static final String RADIUS = "50";
+    private static final String REQUEST_PARAMS = "?lang=ru&show=webcams:category,image,location,statistics,url";
+    private static final String RADIUS = "25";
 
     /**
      * Возвращает URL для выполнения запроса Webcams API для получения
@@ -24,7 +24,7 @@ public final class Webcams {
             throws MalformedURLException {
         Uri uri = Uri.parse(BASE_URL + METHOD_NEARBY + Double.toString(latitude) +
                 "," + Double.toString(longitude) +
-                "," + RADIUS + REQUSET_PARAMS)
+                "," + RADIUS + REQUEST_PARAMS)
                 .buildUpon()
                 .build();
         return new URL(uri.toString());
