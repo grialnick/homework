@@ -23,8 +23,6 @@ public class CityCamActivity extends AppCompatActivity {
      */
     public static final String EXTRA_CITY = "city";
 
-    public static final String EXTRA_WEBCAM_CACHE = "webcamCached";
-
     private City city;
     private ImageView camImageView;
     private ProgressBar progressView;
