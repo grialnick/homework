@@ -13,10 +13,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jakewharton.disklrucache.DiskLruCache;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -154,6 +157,7 @@ public class CityCamActivity extends AppCompatActivity {
         private Integer progress;
         private Context appContext;
         private WebcamEntity webcamEntity;
+        private DiskLruCache diskLruCache;
 
         DownloadTask(CityCamActivity activity) {
             this.appContext = activity.getApplicationContext();
@@ -257,6 +261,7 @@ public class CityCamActivity extends AppCompatActivity {
         protected WebcamEntity doInBackground(URL... urls) {
             URL url = urls[0];
             InputStream inputStream = null;
+            OutputStream diskOutputStream = null;
             HttpURLConnection imageConnection = null;
             HttpsURLConnection webcamConnection = null;
             try {
@@ -274,17 +279,30 @@ public class CityCamActivity extends AppCompatActivity {
                     throw new NoSuchElementException("No cams there");
                 }
                 webcamEntity.setChoosenCam(new Random().nextInt(webcamEntity.getResponse().getResult().getWebcams().size()));
-                URL imageUrl = new URL(webcamEntity.getResponse().getResult().getWebcams()
-                        .get(webcamEntity.getChoosenCam())
-                        .getImage().getCurrent().getPreview());
-                imageConnection = (HttpURLConnection) imageUrl.openConnection();
-                imageConnection.setRequestMethod("GET");
-                imageConnection.setDoInput(true);
-                imageConnection.connect();
-                if (imageConnection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
-                    throw new IllegalArgumentException("Download image error: " + imageUrl);
+                diskLruCache = DiskLruCache.open(appContext.getCacheDir(), 1, 1, 52428800);
+                String webcamId = webcamEntity.getResponse().getResult()
+                        .getWebcams().get(webcamEntity.getChoosenCam()).getId();
+                if (diskLruCache.get(webcamId) == null) {
+                    URL imageUrl = new URL(webcamEntity.getResponse().getResult().getWebcams()
+                            .get(webcamEntity.getChoosenCam())
+                            .getImage().getCurrent().getPreview());
+                    imageConnection = (HttpURLConnection) imageUrl.openConnection();
+                    imageConnection.setRequestMethod("GET");
+                    imageConnection.setDoInput(true);
+                    imageConnection.connect();
+                    if (imageConnection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+                        throw new IllegalArgumentException("Download image error: " + imageUrl);
+                    }
+                    DiskLruCache.Editor editor = diskLruCache.edit(webcamId);
+                    diskOutputStream = editor.newOutputStream(0);
+                    flowStreams(imageConnection.getInputStream(), diskOutputStream);
+                    diskOutputStream.flush();
+                    diskOutputStream.close();
+                    editor.commit();
+                    inputStream = diskLruCache.get(webcamId).getInputStream(0);
+                } else {
+                    inputStream = diskLruCache.get(webcamId).getInputStream(0);
                 }
-                inputStream = imageConnection.getInputStream();
                 if (inputStream != null) {
                     webcamEntity.setImage(BitmapFactory.decodeStream(inputStream));
                 }
@@ -303,6 +321,22 @@ public class CityCamActivity extends AppCompatActivity {
                 }
                 if (webcamConnection != null) {
                     webcamConnection.disconnect();
+                }
+                if (diskLruCache != null) {
+                    try {
+                        diskLruCache.flush();
+                        diskLruCache.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (diskOutputStream != null) {
+                    try {
+                        diskOutputStream.flush();
+                        diskOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             return webcamEntity;
@@ -332,6 +366,16 @@ public class CityCamActivity extends AppCompatActivity {
             WebcamEntity webcamEntity = new WebcamEntity(null, null, 0);
             webcamEntity.setResponse(Serializer.getInstance().fromJson(response.toString(), WebcamResponse.class));
             return webcamEntity;
+        }
+
+        public void flowStreams(InputStream in, OutputStream out) throws IOException {
+            byte[] buffer = new byte[1024];
+            while (true) {
+                int bytesRead = in.read(buffer);
+                if (bytesRead == -1)
+                    break;
+                out.write(buffer, 0, bytesRead);
+            }
         }
 
     }
