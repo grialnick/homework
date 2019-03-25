@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="downloading">Загрузка&#8230;</string>
+    <string name="error">Ошибка</string>
+    <string name="done">Готово</string>
+    <string name="no_cam">Нет доступной камеры рядом</string>
+    <string name="city">Населенный пункт:&#160;</string>
+    <string name="region">Регион:&#160;</string>
+    <string name="country">Страна:&#160;</string>
+    <string name="continent">Континент:&#160;</string>
+    <string name="latitude">Широта:&#160;</string>
+    <string name="longitude">Долгота:&#160;</string>
+    <string name="timezone">Часовой пояс:&#160;</string>
+    <string name="wiki_link">Ссылка на вики:&#160;</string>
+    <string name="categories">Категории:&#160;</string>
+    <string name="views">Количество просмотров:&#160;</string>
+    <string name="webcam_link">Ссылка на камеру:&#160;</string>
+    <string name="no_info">Нет информации</string>
 </resources>
