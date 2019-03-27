@@ -3,6 +3,7 @@ package ru.android_2019.citycam;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,19 +13,23 @@ import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
-class DownloadWebcamInfoTask extends AsyncTask<URL, Void, Webcam> {
+import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.webcams.Webcams;
+
+class DownloadWebcamInfoTask extends AsyncTask<City, Void, Webcam> {
     private CityCamActivity activity;
     private Webcam webcam = null;
+    private WebcamsCache cache = WebcamsCache.getInstance();
 
-    DownloadWebcamInfoTask(CityCamActivity activity) {
+    public DownloadWebcamInfoTask(CityCamActivity activity) {
         this.activity = activity;
     }
 
-    private void updateViews() {
+    private void updateViews(Webcam webcam) {
         activity.setInvisible();
         if (webcam != null) {
-            activity.setBitmap(webcam.getBitmap());
             activity.setId(webcam.getId());
+            activity.setBitmap(webcam.getBitmap());
             activity.setStatus(webcam.getStatus());
             activity.setTitle(webcam.getTitle());
             activity.setCity(webcam.getLocation().getCity());
@@ -40,33 +45,76 @@ class DownloadWebcamInfoTask extends AsyncTask<URL, Void, Webcam> {
 
     public void attachActivity(CityCamActivity activity) {
         this.activity = activity;
-        updateViews();
+        updateViews(webcam);
     }
 
     @Override
-    protected Webcam doInBackground(URL... urls) {
+    protected Webcam doInBackground(City... cities) {
         try {
-            webcam = downloadWebcam(urls[0]);
+            webcam = downloadWebcams(cities[0]);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(CityCamActivity.TAG, e.getMessage());
         }
         return webcam;
     }
 
     @Override
     protected void onPostExecute(Webcam webcam) {
-        updateViews();
+        updateViews(webcam);
     }
 
-
-    private Webcam downloadWebcam(URL url) throws IOException {
+    private Webcam downloadWebcams(City city) throws IOException {
         InputStream stream = null;
         HttpsURLConnection urlConnection = null;
-        List<Webcam> webcams = null;
+        List<Webcam> webcams = cache.get(city.name);
+        if (webcams == null) {
+            URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
+            try {
+                urlConnection = (HttpsURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("X-RapidAPI-Key", "df6d6603ddmsh555507aa6abb190p1419f9jsnacbcaa2ba59b");
+                urlConnection.connect();
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode != HttpsURLConnection.HTTP_OK) {
+                    throw new IOException("HTTP error code: " + responseCode);
+                }
+                stream = urlConnection.getInputStream();
+                if (stream != null) {
+                    JsonParser parser = new JsonParser();
+                    webcams = parser.readJsonStream(stream);
+                }
+            } finally {
+                if (stream != null) {
+                    stream.close();
+                }
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        }
+        if (webcams != null && !webcams.isEmpty()) {
+            int index = 0;
+            if (webcams.size() > 1) {
+                index = (new Random()).nextInt(webcams.size() - 1);
+            }
+            webcam = webcams.get(index);
+            Bitmap bitmap = webcam.getBitmap();
+            if (bitmap == null) {
+                bitmap = downloadBitmap(new URL(webcam.getImageURL()));
+                cache.put(city.name, webcams);
+            }
+            webcam.setBitmap(bitmap);
+        }
+        return webcam;
+    }
+
+    private Bitmap downloadBitmap(URL url) throws IOException {
+        HttpsURLConnection urlConnection = null;
+        InputStream stream = null;
+        Bitmap bitmap = null;
         try {
             urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.setRequestProperty("X-RapidAPI-Key", "df6d6603ddmsh555507aa6abb190p1419f9jsnacbcaa2ba59b");
             urlConnection.connect();
             int responseCode = urlConnection.getResponseCode();
             if (responseCode != HttpsURLConnection.HTTP_OK) {
@@ -74,60 +122,16 @@ class DownloadWebcamInfoTask extends AsyncTask<URL, Void, Webcam> {
             }
             stream = urlConnection.getInputStream();
             if (stream != null) {
-                JsonParser parser = new JsonParser();
-                webcams = parser.readJsonStream(stream);
+                bitmap = BitmapFactory.decodeStream(stream);
             }
         } finally {
             if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                stream.close();
             }
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
-
-        if (webcams == null || webcams.isEmpty()) {
-            return null;
-        }
-        int index = 0;
-        if (webcams.size() > 1) {
-            index = (new Random()).nextInt(webcams.size() - 1);
-        }
-        Webcam webcam = webcams.get(index);
-        try {
-            if (webcam.getImageURL() == null) {
-                return webcam;
-            }
-            URL imageUrl = new URL(webcam.getImageURL());
-            urlConnection = (HttpsURLConnection) imageUrl.openConnection();
-
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-            int responseCode = urlConnection.getResponseCode();
-            if (responseCode != HttpsURLConnection.HTTP_OK) {
-                throw new IOException("HTTP error code: " + responseCode);
-            }
-            stream = urlConnection.getInputStream();
-            if (stream != null) {
-                Bitmap bitmap = BitmapFactory.decodeStream(stream);
-                webcam.setBitmap(bitmap);
-            }
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-        return webcam;
+        return bitmap;
     }
 }

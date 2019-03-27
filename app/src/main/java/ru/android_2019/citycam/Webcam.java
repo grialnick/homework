@@ -11,6 +11,12 @@ class Webcam {
     private String views;
     private Bitmap bitmap;
 
+    public Webcam(String id, String status, String title) {
+        this.id = id;
+        this.status = status;
+        this.title = title;
+    }
+
     public void setId(String id) {
         this.id = id;
     }

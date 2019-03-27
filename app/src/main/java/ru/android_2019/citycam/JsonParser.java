@@ -27,6 +27,11 @@ class JsonParser {
                         }
                     }
                     reader.endObject();
+                } else if (name.equals("status")) {
+                    String status = reader.nextString();
+                    if (!status.equals("OK")) {
+                        throw new IOException(status + " status was returned");
+                    }
                 } else {
                     reader.skipValue();
                 }
@@ -49,16 +54,30 @@ class JsonParser {
     }
 
     private Webcam readWebcam(JsonReader reader) throws IOException {
-        Webcam webcam = new Webcam();
+        Webcam webcam = new Webcam(
+                "Not specified",
+                "Not specified",
+                "Not specified");
+
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
+            String value;
             if (name.equals("id")) {
-                webcam.setId(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    webcam.setId(value);
+                }
             } else if (name.equals("status")) {
-                webcam.setStatus(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    webcam.setStatus(value);
+                }
             } else if (name.equals("title")) {
-                webcam.setTitle(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    webcam.setTitle(value);
+                }
             } else if (name.equals("image")) {
                 webcam.setImageURL(readImageURL(reader));
             } else if (name.equals("location")) {
@@ -74,7 +93,7 @@ class JsonParser {
     }
 
     private String readImageURL(JsonReader reader) throws IOException {
-        String imageURL = null;
+        String imageURL = "Not specified";
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -98,20 +117,42 @@ class JsonParser {
     }
 
     private Location readLocation(JsonReader reader) throws IOException {
-        Location location = new Location();
+        Location location = new Location(
+                "Not specified",
+                "Not specified",
+                "Not specified",
+                "Not specified",
+                "Not specified");
+
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
+            String value;
             if (name.equals("city")) {
-                location.setCity(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    location.setCity(value);
+                }
             } else if (name.equals("region")) {
-                location.setRegion(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    location.setRegion(value);
+                }
             } else if (name.equals("country")) {
-                location.setCountry(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    location.setCountry(value);
+                }
             } else if (name.equals("continent")) {
-                location.setContinent(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    location.setContinent(value);
+                }
             } else if (name.equals("wikipedia")) {
-                location.setWikiURL(reader.nextString());
+                value = reader.nextString();
+                if (!value.equals("")) {
+                    location.setWikiURL(value);
+                }
             } else {
                 reader.skipValue();
             }
@@ -121,16 +162,17 @@ class JsonParser {
     }
 
     private String readViews(JsonReader reader) throws IOException {
-        String views = null;
+        String views = "Not specified";
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
             if (name.equals("views")) {
                 views = reader.nextString();
+            } else {
+                reader.skipValue();
             }
         }
         reader.endObject();
         return views;
     }
-
 }

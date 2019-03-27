@@ -4,15 +4,15 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.net.MalformedURLException;
+import java.util.List;
 
 import ru.android_2019.citycam.model.City;
-import ru.android_2019.citycam.webcams.Webcams;
 
 /**
  * Экран, показывающий веб-камеру одного выбранного города.
@@ -46,7 +46,11 @@ public class CityCamActivity extends AppCompatActivity {
     }
 
     public void setBitmap(Bitmap bitmap) {
-        camImageView.setImageBitmap(bitmap);
+        if (bitmap == null) {
+            imageNotFoundView.setVisibility(View.VISIBLE);
+        } else {
+            camImageView.setImageBitmap(bitmap);
+        }
     }
 
     public void setInvisible() {
@@ -105,6 +109,7 @@ public class CityCamActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city_cam);
+
         camImageView = (ImageView) findViewById(R.id.cam_image);
         progressView = (ProgressBar) findViewById(R.id.progress);
         idView = (TextView) findViewById(R.id.id);
@@ -128,16 +133,12 @@ public class CityCamActivity extends AppCompatActivity {
         }
         if (downloadTask == null) {
             downloadTask = new DownloadWebcamInfoTask(this);
-            try {
-                downloadTask.execute(Webcams.createNearbyUrl(city.latitude, city.longitude));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+            downloadTask.execute(city);
         } else {
             downloadTask.attachActivity(this);
         }
     }
 
-    private static final String TAG = "CityCam";
+    public static final String TAG = "CityCam";
 }
 

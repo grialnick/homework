@@ -7,6 +7,14 @@ class Location {
     private String continent;
     private String wikiURL;
 
+    public Location(String city, String region, String country, String continent, String wikiURL) {
+        this.city = city;
+        this.region = region;
+        this.country = country;
+        this.continent = continent;
+        this.wikiURL = wikiURL;
+    }
+
     public void setCity(String city) {
         this.city = city;
     }
