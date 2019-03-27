@@ -8,5 +8,8 @@
     <string name="status">Status:&#160;</string>
     <string name="views">Views:&#160;</string>
     <string name="id">WebCam id:&#160;</string>
+    <string name="time">Last updated:&#160;</string>
     <string name="imagePlaceholder">WebCam image</string>
+    <string name="conn_error">Connection problems, try again later.</string>
+    <string name="cam_error">No cams available.</string>
 </resources>

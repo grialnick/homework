@@ -1,15 +1,36 @@
 package ru.android_2019.citycam;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.JsonReader;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.android_2019.citycam.model.WebCamMessage;
+
 class JSonParser {
+    private static Bitmap getBitmapFromURL(String src) {
+        try {
+            java.net.URL url = new java.net.URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url
+                    .openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     List<WebCamMessage> readJsonStream(InputStream in) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         try {
@@ -65,12 +86,12 @@ class JSonParser {
 
     private WebCamMessage readWebCamMessage(JsonReader reader) throws IOException {
         long id = -1;
-        WebCamLocation location = null;
+        String timeZone = null;
         String image = null;
+        String time = null;
         String title = null;
         String status = null;
         String views = null;
-
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -80,13 +101,15 @@ class JSonParser {
                     id = reader.nextLong();
                     break;
                 case "location":
-                    location = readLocation(reader);
+                    timeZone = readLocation(reader);
                     break;
                 case "title":
                     title = reader.nextString();
                     break;
                 case "image":
-                    image = readImage(reader);
+                    String[] imageObject = readImageObject(reader);
+                    image = imageObject[0];
+                    time = imageObject[1];
                     break;
                 case "status":
                     status = reader.nextString();
@@ -100,7 +123,7 @@ class JSonParser {
             }
         }
         reader.endObject();
-        return new WebCamMessage(id, title, location, image, status, views);
+        return new WebCamMessage(id, title, timeZone, getBitmapFromURL(image), status, views, time);
     }
 
     private String getViews(JsonReader reader) throws IOException {
@@ -118,9 +141,8 @@ class JSonParser {
         return views;
     }
 
-    private WebCamLocation readLocation(JsonReader reader) throws IOException {
+    private String readLocation(JsonReader reader) throws IOException {
         String timezone = null;
-        String city = null;
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -128,8 +150,28 @@ class JSonParser {
                 case "timezone":
                     timezone = reader.nextString();
                     break;
-                case "city":
-                    city = reader.nextString();
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+        reader.endObject();
+        return timezone;
+    }
+
+
+    private String[] readImageObject(JsonReader reader) throws IOException {
+        String[] data = new String[2];
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case "current":
+                    data[0] = readImage(reader);
+                    break;
+                case "update":
+                    Log.d("", "readImageObject: " + data[1]);
+                    data[1] = parseTime(reader.nextString());
                     break;
                 default:
                     reader.skipValue();
@@ -137,27 +179,10 @@ class JSonParser {
             }
         }
         reader.endObject();
-        return new WebCamLocation(timezone, city);
+        return data;
     }
-
 
     private String readImage(JsonReader reader) throws IOException {
-        String image = null;
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("current")) {
-                image = readImageObject(reader);
-            } else {
-                reader.skipValue();
-            }
-        }
-        reader.endObject();
-        return image;
-    }
-
-    private String readImageObject(JsonReader reader) throws IOException {
         String preview = null;
 
         reader.beginObject();
@@ -172,5 +197,12 @@ class JSonParser {
         reader.endObject();
 
         return preview;
+    }
+
+    private String parseTime(String time) {
+
+        @SuppressLint("SimpleDateFormat")
+        String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date(Long.parseLong(time) * 1000));
+        return date;
     }
 }

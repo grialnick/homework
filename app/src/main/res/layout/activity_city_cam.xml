@@ -1,123 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_light">
 
-    <android.support.constraint.ConstraintLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/activity_city_cam__list"
         android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+    </android.support.v7.widget.RecyclerView>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
-        android:background="#fff"
-        android:paddingBottom="20dp">
+    <TextView
+        android:id="@+id/activity_city_cam__error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:text="@string/conn_error"
+        android:textColor="@android:color/background_dark"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:visibility="invisible" />
 
-        <TextView
-            android:id="@+id/activity_city_cam__title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:text="@string/header"
-            android:textColor="@android:color/black"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <FrameLayout
-            android:id="@+id/activity_city_cam__image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__title">
-
-            <ImageView
-                android:id="@+id/cam_image"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:background="#999"
-                android:contentDescription="@string/imagePlaceholder"
-                android:scaleType="centerCrop" />
-
-            <ProgressBar
-                android:id="@+id/progress"
-                style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/activity_city_cam__status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/status"
-            app:layout_constraintEnd_toStartOf="@id/activity_city_cam__views"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__image" />
-
-        <TextView
-            android:id="@+id/activity_city_cam__views"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/views"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/activity_city_cam__status"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__image" />
-
-
-        <TextView
-            android:id="@+id/activity_city_cam__mainInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:text="@string/information"
-            android:textColor="@android:color/black"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__views" />
-
-        <TextView
-            android:id="@+id/activity_city_cam__city"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/city_title"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__mainInfo" />
-
-        <TextView
-            android:id="@+id/activity_city_cam__timeZone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/time_zone"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__city" />
-
-
-        <TextView
-            android:id="@+id/activity_city_cam__id"
-            android:layout_width="match_parent"
-            android:layout_height="16dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/id"
-            app:layout_constraintTop_toBottomOf="@id/activity_city_cam__timeZone" />
-
-
-    </android.support.constraint.ConstraintLayout>
-</ScrollView>
+</FrameLayout>

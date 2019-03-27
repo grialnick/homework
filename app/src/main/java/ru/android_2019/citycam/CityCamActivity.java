@@ -1,15 +1,14 @@
 package ru.android_2019.citycam;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -18,12 +17,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import ru.android_2019.citycam.dataBase.App;
+import ru.android_2019.citycam.dataBase.WebCamMessageDAO;
+import ru.android_2019.citycam.list.RecylcerDividersDecorator;
+import ru.android_2019.citycam.list.WebCamRecyclerAdapter;
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.model.WebCamMessage;
 import ru.android_2019.citycam.webcams.Webcams;
 
 public class CityCamActivity extends AppCompatActivity {
@@ -32,16 +36,13 @@ public class CityCamActivity extends AppCompatActivity {
 
     private City city;
 
-    private TextView titleView;
-    private TextView statusView;
-    private ImageView imageView;
-    private TextView viewsView;
-    private TextView cityView;
-    private TextView timeZoneView;
-    private TextView idView;
-    private ProgressBar progressView;
 
     private DownLoadWebCamTask downloadTask = null;
+
+    RecyclerView recyclerView;
+    WebCamRecyclerAdapter adapter;
+    List<WebCamMessage> webCamMessages;
+    WebCamMessageDAO dao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,13 @@ public class CityCamActivity extends AppCompatActivity {
             finish();
         }
         setContentView(R.layout.activity_city_cam);
-        initializeUI();
         getSupportActionBar().setTitle(city.name);
+        webCamMessages = new ArrayList<>();
+        adapter = new WebCamRecyclerAdapter(webCamMessages, this);
+        recyclerView = findViewById(R.id.activity_city_cam__list);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addItemDecoration(new RecylcerDividersDecorator(Color.DKGRAY));
         if (savedInstanceState != null) {
             downloadTask = (DownLoadWebCamTask) getLastCustomNonConfigurationInstance();
         }
@@ -67,17 +73,9 @@ public class CityCamActivity extends AppCompatActivity {
         } else {
             downloadTask.attachActivity(this);
         }
-    }
+        dao = App.getInstance().getDatabase().webCamMessageDAO();
 
-    private void initializeUI() {
-        titleView = findViewById(R.id.activity_city_cam__title);
-        statusView = findViewById(R.id.activity_city_cam__status);
-        imageView = findViewById(R.id.cam_image);
-        viewsView = findViewById(R.id.activity_city_cam__views);
-        cityView = findViewById(R.id.activity_city_cam__city);
-        timeZoneView = findViewById(R.id.activity_city_cam__timeZone);
-        idView = findViewById(R.id.activity_city_cam__id);
-        progressView = findViewById(R.id.progress);
+
     }
 
     @Override
@@ -85,34 +83,15 @@ public class CityCamActivity extends AppCompatActivity {
         return this.downloadTask;
     }
 
-    static Bitmap getBitmapFromURL(String src) {
-        try {
-            java.net.URL url = new java.net.URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url
-                    .openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     @SuppressLint("StaticFieldLeak")
-    class DownLoadWebCamTask extends AsyncTask<URL, Integer, WebCamMessage> {
+    class DownLoadWebCamTask extends AsyncTask<URL, Integer, List<WebCamMessage>> {
 
         @SuppressLint("StaticFieldLeak")
         private CityCamActivity activity;
 
-        private Bitmap bitmap;
-        private String city;
-        private String title;
-        private String location;
-        private String status;
-        private String views;
-        private long id;
+        private int status;
+        private List<WebCamMessage> messages = new ArrayList<>();
 
         DownLoadWebCamTask(CityCamActivity activity) {
             this.activity = activity;
@@ -120,24 +99,28 @@ public class CityCamActivity extends AppCompatActivity {
 
         void attachActivity(CityCamActivity activity) {
             this.activity = activity;
+            this.activity.findViewById(R.id.progress).setEnabled(false);
             updateView();
         }
 
         void updateView() {
             if (activity != null) {
-                if (title != null) {
-                    activity.titleView.setText(title);
-                    activity.imageView.setImageBitmap(bitmap);
-                    activity.cityView.setText(String.valueOf(activity.getResources().getText(R.string.city_title) + city));
-                    activity.timeZoneView.setText(String.valueOf(activity.getResources().getText(R.string.time_zone) + location));
-                    activity.viewsView.setText(String.valueOf(activity.getResources().getText(R.string.views) + views));
-                    activity.idView.setText(String.valueOf(activity.getResources().getText(R.string.id) + "" + id));
+                TextView errorView = activity.findViewById(R.id.activity_city_cam__error);
+                if (status == 2 && messages.size() == 0) {
+                    errorView.setVisibility(View.VISIBLE);
+                    errorView.setText(getResources().getText(R.string.conn_error));
+                } else if (messages.size() == 0) {
+                    errorView.setVisibility(View.VISIBLE);
+                    errorView.setText(getResources().getText(R.string.cam_error));
                 } else {
-                    activity.titleView.setText(activity.getResources().getText(R.string.error));
+                    errorView.setVisibility(View.GONE);
+                    activity.webCamMessages.clear();
+                    activity.webCamMessages.addAll(messages);
+                    activity.adapter.notifyDataSetChanged();
                 }
-                activity.progressView.setVisibility(View.INVISIBLE);
-                activity.statusView.setText(String.valueOf(activity.getResources().getText(R.string.status) + status));
+                activity.findViewById(R.id.progress).setVisibility(View.GONE);
             }
+
         }
 
         @Override
@@ -145,42 +128,49 @@ public class CityCamActivity extends AppCompatActivity {
         }
 
         @Override
-        protected WebCamMessage doInBackground(URL... list) {
-            WebCamMessage message = null;
+        protected List<WebCamMessage> doInBackground(URL... list) {
+            messages = null;
             try {
-                message = downloadFile(list[0]);
-                if (message != null) {
-                    bitmap = CityCamActivity.getBitmapFromURL(message.getImage());
-                    city = message.getLocation().getCity();
-                    location = message.getLocation().getTimezone();
-                    title = message.getTitle();
-                    status = message.getStatus();
-                    views = message.getViews();
-                    id = message.getId();
-                } else {
-                    status = "Not active";
-                }
+                messages = downloadFile(list);
+                status = messages != null ? 1 : 0;
             } catch (Exception e) {
-                status = "Connection problems";
+                status = 2;
             }
-            return message;
+            if (status != 2) {
+                boolean isCreated = activity.dao.getByCity(activity.city.name).size() > 0;
+                if (isCreated) {
+                    activity.dao.deleteByCity(activity.city.name);
+                }
+                Log.d(TAG, "doInBackground: " + isCreated);
+                for (int i = 0; i < messages.size(); i++) {
+                    messages.get(i).setCity(activity.city.name);
+                    activity.dao.insert(messages.get(i));
+                }
+            }
+            return messages;
         }
 
-        private WebCamMessage downloadFile(URL url) throws Exception {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        private List<WebCamMessage> downloadFile(URL[] url) throws Exception {
+            List<WebCamMessage> messages = new ArrayList<>();
+            HttpURLConnection connection = (HttpURLConnection) url[0].openConnection();
             InputStream in = null;
-            WebCamMessage message = null;
+
             try {
+
                 connection.setRequestProperty("X-RapidAPI-Key", "245da2bce0msh1f4d44a59904349p1f51e2jsn78950678f482");
                 connection.connect();
+
                 if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+
                     throw new UnknownHostException();
                 }
                 in = connection.getInputStream();
                 JSonParser parser = new JSonParser();
                 List<WebCamMessage> camList = parser.readJsonStream(in);
                 if (camList.size() > 0) {
-                    message = camList.get(new Random().nextInt(camList.size()));
+                    messages = camList;
+                    messages.get(messages.size() - 1).setStatus("active");
                 }
             } finally {
                 if (in != null) {
@@ -189,19 +179,33 @@ public class CityCamActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         Log.e(TAG, "Failed to close HTTP input stream: " + e, e);
                     }
+                } else {
+                    loadFromCache();
                 }
                 connection.disconnect();
             }
-            return message;
+
+
+            return messages;
         }
+
+        private void loadFromCache() {
+            messages = new ArrayList<>();
+            messages.addAll(activity.dao.getByCity(activity.city.name));
+            updateView();
+        }
+
 
         @Override
         protected void onProgressUpdate(Integer... values) {
         }
 
         @Override
-        protected void onPostExecute(WebCamMessage message) {
+        protected void onPostExecute(List<WebCamMessage> messages) {
             updateView();
+            if (recyclerView.getAdapter().getItemCount() > 0) {
+                recyclerView.smoothScrollToPosition(0);
+            }
         }
 
     }
