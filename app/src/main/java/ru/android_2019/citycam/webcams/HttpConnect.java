@@ -20,7 +20,7 @@ public class HttpConnect {
             Connection.setConnectTimeout(2000);
             Connection.setDoInput(true);
             Connection.setRequestMethod("GET");
-            Connection.setRequestProperty("X-RapidAPI-KEY", "bb43131250mshf0d6ed9887777a2p1fada8jsnb76edde66d91");
+            Connection.setRequestProperty("X-RapidAPI-KEY", "8a909f08b6mshb1dc9615319b280p12accdjsn57333583b8fd");
             Connection.connect();
             if (Connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new IOException("HTTP error");
