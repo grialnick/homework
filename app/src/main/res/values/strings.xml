@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="cam_title">Title: </string>
+    <string name="cam_status">Status: </string>
+    <string name="cam_id">ID Cam: </string>
+    <string name="cam_count">Count Views: </string>
 </resources>
