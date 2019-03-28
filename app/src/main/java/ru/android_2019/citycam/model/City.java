@@ -1,11 +1,16 @@
 package ru.android_2019.citycam.model;
 
+
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.UUID;
+
 
 /**
  * Город
  */
+
 public class City implements Parcelable {
 
     /**
@@ -23,7 +28,8 @@ public class City implements Parcelable {
      */
     public final double longitude;
 
-    private Webcam webcam;
+
+
 
 
     public City(String name, double latitude, double longitude) {
@@ -32,13 +38,7 @@ public class City implements Parcelable {
         this.longitude = longitude;
     }
 
-    public Webcam getWebcam(){
-        return this.webcam;
-    }
 
-    public void setWebcam(Webcam webcam) {
-        this.webcam = webcam;
-    }
 
     @Override
     public String toString() {

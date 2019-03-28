@@ -11,8 +11,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Random;
 
+import ru.android_2019.citycam.appconfig.App;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.connection_api.ConnectionApi;
+import ru.android_2019.citycam.dao.WebcamDAO;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 import ru.android_2019.citycam.parsers.ResponseWebcamParser;
@@ -32,35 +34,46 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
     @Override
     protected Webcam doInBackground(City... cities) {
         City city = cities[0];
-        InputStream in = null;
-        HttpURLConnection connection = null;
+        WebcamDAO webcamDAO = App.getInstance().getCityDatabase().webcamDao();
         Webcam webcam = null;
         try {
-            URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
-            connection = ConnectionApi.getConnection(url);
-            connection.connect();
-            if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException();
-            }
-            in = connection.getInputStream();
-            List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-            webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
-        } catch (java.io.IOException e) {
+            webcam = webcamDAO.selectByName(city.name);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
-            if(connection != null) {
-                connection.disconnect();
-            }
-            if(in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if(webcam == null) {
+            InputStream in = null;
+            HttpURLConnection connection = null;
+            try {
+                URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
+                connection = ConnectionApi.getConnection(url);
+                connection.connect();
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new IOException();
+                }
+                in = connection.getInputStream();
+                List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
+                webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
+                if (webcam != null) {
+                    webcam.setCityName(city.name);
+                    webcamDAO.insert(webcam);
+                }
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+            Log.d(String.valueOf(this), "AsyncTask");
         }
-        Log.d(String.valueOf(this), "AsyncTask");
         return webcam;
     }
 
