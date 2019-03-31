@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff">
@@ -17,53 +16,64 @@
             android:id="@+id/cam_image"
             android:layout_width="320dp"
             android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="#999"/>
+            android:background="#999"
+            android:scaleType="centerCrop" />
 
         <ProgressBar
             android:id="@+id/progress"
+            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
+            android:layout_gravity="center" />
     </FrameLayout>
+
+    <Button
+        android:id="@+id/button_update_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/frameLayout_cam"
+        android:layout_margin="10dp"
+        android:enabled="false"
+        android:text="@string/button_update_prev_image" />
 
     <TextView
         android:id="@+id/textView_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:textSize="16sp"
+        android:layout_toRightOf="@id/frameLayout_cam"
         android:textColor="@android:color/black"
-        android:layout_toRightOf="@id/frameLayout_cam"/>
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
         android:layout_below="@id/textView_id"
-        android:layout_toRightOf="@id/frameLayout_cam"/>
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/textView_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
         android:layout_below="@id/textView_title"
-        android:layout_toRightOf="@id/frameLayout_cam"/>
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/textView_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
         android:layout_below="@id/textView_categories"
-        android:layout_toRightOf="@id/frameLayout_cam"/>
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
     <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
 

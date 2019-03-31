@@ -51,6 +51,7 @@ public class WebcamInfo {
                     .append(category.getName())
                     .append("'\n");
         }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         return stringBuilder.toString();
     }
 

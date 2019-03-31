@@ -3,6 +3,7 @@ package ru.android_2019.citycam.asyncTask;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -31,6 +32,8 @@ public class DownloadUtils {
                 .build();
         Response response = client.newCall(request).execute();
         Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+        response.close();
         return bitmap;
     }
+
 }

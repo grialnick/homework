@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class CityCamActivity extends AppCompatActivity {
     private TextView textViewCategories;
     private TextView textViewLocation;
     private WebcamTask webcamTask;
+    private Button buttonUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,16 @@ public class CityCamActivity extends AppCompatActivity {
         textViewTitle = (TextView) findViewById(R.id.textView_title);
         textViewCategories = (TextView) findViewById(R.id.textView_categories);
         textViewLocation = (TextView) findViewById(R.id.textView_location);
+        buttonUpdate = (Button) findViewById(R.id.button_update_image);
+        buttonUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonUpdate.setEnabled(false);
+                progressView.setVisibility(View.VISIBLE);
+                webcamTask = new WebcamTask((CityCamActivity) v.getContext(), city);
+                webcamTask.execute(WebcamTask.UpdateCacheImage.YES);
+            }
+        });
 
         getSupportActionBar().setTitle(city.name);
 
@@ -65,7 +77,7 @@ public class CityCamActivity extends AppCompatActivity {
         }
         if (webcamTask == null) {
             webcamTask = new WebcamTask(this, city);
-            webcamTask.execute();
+            webcamTask.execute(WebcamTask.UpdateCacheImage.NO);
         } else {
             webcamTask.attachActivity(this);
         }
@@ -81,6 +93,7 @@ public class CityCamActivity extends AppCompatActivity {
                 camImageView.setImageBitmap(bitmap);
                 progressView.setVisibility(View.GONE);
             }
+            buttonUpdate.setEnabled(true);
         } else {
             textViewTitle.setText(city.name + " : " + getString(R.string.not_found_webcam));
         }
