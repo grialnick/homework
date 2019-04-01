@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="downloading">Загрузка</string>
+    <string name="done">Готово</string>
+    <string name="error">Ошибка</string>
+    <string name="app_name">City Cam</string>
+</resources>
