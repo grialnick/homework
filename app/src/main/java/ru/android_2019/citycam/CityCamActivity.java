@@ -101,8 +101,8 @@ public class CityCamActivity extends AppCompatActivity {
         void updateView() {
             if (activity != null) {
                 if (webcam != null) {
-                    activity.titleText.setText(webcam.getTitle());
-                    activity.cityText.setText(webcam.getCity());
+                    activity.titleText.setText(webcam.title);
+                    activity.cityText.setText(webcam.city);
                 }
                 if (image != null) {
                     activity.camImageView.setImageBitmap(image);
@@ -127,7 +127,7 @@ public class CityCamActivity extends AppCompatActivity {
                     List<Webcam> webcams = DownloadUtils.loadResponse(Webcams.createNearbyUrl(activity.city.latitude, activity.city.longitude));
                     if (!webcams.isEmpty()) {
                         webcam = webcams.get(0);
-                        image = DownloadUtils.downloadImage(new URL(webcam.getPreviewUrl()));
+                        image = DownloadUtils.downloadImage(new URL(webcam.previewUrl));
                         webcam.setImage(image);
                         WebcamCache.getInstance().put(activity.city.name, webcam);
                         Log.d(TAG, "Data downloaded");
@@ -155,8 +155,8 @@ public class CityCamActivity extends AppCompatActivity {
                 activity.camImageView.setImageBitmap(image);
             }
             if (webcam != null) {
-                activity.cityText.setText(webcam.getCity());
-                activity.titleText.setText(webcam.getTitle());
+                activity.cityText.setText(webcam.city);
+                activity.titleText.setText(webcam.title);
             }
         }
     }

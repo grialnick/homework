@@ -1,6 +1,3 @@
 <resources>
     <string name="app_name">City Cam</string>
-    <string name="downloading">Downloading</string>
-    <string name="done">Done</string>
-    <string name="error">Error</string>
 </resources>
