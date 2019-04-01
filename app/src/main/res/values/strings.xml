@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="cam_api_key">bb43131250mshf0d6ed9887777a2p1fada8jsnb76edde66d91</string>
+    <string name="about_location">О месте: </string>
+    <string name="error_download">Error download</string>
 </resources>
