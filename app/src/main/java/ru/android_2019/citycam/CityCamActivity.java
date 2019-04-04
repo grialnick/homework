@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,10 +13,8 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -26,6 +23,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import ru.android_2019.citycam.cache.MyCache;
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.reader.ResponseJsonReader;
+import ru.android_2019.citycam.reader.WebcamsMessage;
 import ru.android_2019.citycam.webcams.Webcams;
 
 /**
@@ -105,7 +104,7 @@ public class CityCamActivity extends AppCompatActivity {
     }
 
 
-    public class DownloadImageTask extends AsyncTask<URL, Integer, DownloadImageTask.WebcamsMessage> {
+    public class DownloadImageTask extends AsyncTask<URL, Integer, WebcamsMessage> {
 
         private CityCamActivity activity;
         private Integer progress = 0;
@@ -130,14 +129,10 @@ public class CityCamActivity extends AppCompatActivity {
                 else {
                     activity.errorTextView.setVisibility(View.INVISIBLE);
                     activity.camImageView.setImageBitmap(mess.getBitmap());
-                    String idText = getResources().getString(R.string.id_cam)+mess.getId();
-                    activity.idTextView.setText(idText);
-                    String titleText = getResources().getString(R.string.title_cam)+mess.getTitle();
-                    activity.titleTextView.setText(titleText);
-                    String timezoneText = getResources().getString(R.string.timezone_cam)+mess.getTimezone();
-                    activity.timezoneTextView.setText(timezoneText);
-                    String countViewsText = getResources().getString(R.string.views_cam)+mess.getViews();
-                    activity.countViewsTextView.setText(countViewsText);
+                    activity.idTextView.setText(getString(R.string.id_cam, mess.getId()));
+                    activity.titleTextView.setText(getString(R.string.title_cam, mess.getTitle()));
+                    activity.timezoneTextView.setText(getString(R.string.timezone_cam, mess.getTimezone()));
+                    activity.countViewsTextView.setText(getString(R.string.views_cam, mess.getViews()));
                 }
             }
         }
@@ -247,7 +242,8 @@ public class CityCamActivity extends AppCompatActivity {
                 }
                 stream = connection.getInputStream();
                 if (stream != null) {
-                    List<WebcamsMessage> messagesList = readJsonStream(stream);
+                    ResponseJsonReader reader = new ResponseJsonReader();
+                    List<WebcamsMessage> messagesList = reader.readJsonStream(stream);
                     Iterator iter = messagesList.iterator();
                     WebcamsMessage message = null;
                     while (iter.hasNext()) {
@@ -277,162 +273,6 @@ public class CityCamActivity extends AppCompatActivity {
             return result;
         }
 
-        public List<WebcamsMessage> readJsonStream(InputStream in) throws IOException {
-            JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-            try {
-                return readResult(reader);
-            } finally {
-                reader.close();
-            }
-        }
-
-        public List<WebcamsMessage> readResult(JsonReader reader) throws IOException {
-            List<WebcamsMessage> messages = new ArrayList<>();
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("result")) {
-                    messages = readWebcams(reader);
-                } else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-            return messages;
-        }
-
-        public List<WebcamsMessage> readWebcams(JsonReader reader) throws IOException {
-            List<WebcamsMessage> messages = new ArrayList<>();
-            Integer total = -1;
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("total")) {
-                    total = reader.nextInt();
-                }
-                else if (name.equals("webcams") && total > 0) {
-                    messages = readArrayCams(reader);
-                }
-                else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-            //Если не найдено ни одной камеры
-            if (total == 0) {
-                Log.w(TAG, "There is no camera available");
-                throw  new IOException("There is no camera available");
-            }
-            return messages;
-        }
-
-        public List<WebcamsMessage> readArrayCams(JsonReader reader) throws IOException {
-            List<WebcamsMessage> messages = new ArrayList<>();
-
-            reader.beginArray();
-            while (reader.hasNext()) {
-                messages.add(readWebcamsMessage(reader));
-            }
-            reader.endArray();
-            return messages;
-        }
-
-        public WebcamsMessage readWebcamsMessage(JsonReader reader) throws IOException {
-            String id = null;
-            String status = null;
-            String title = null;
-            String preview = null;
-            String timezone = null;
-            Integer views = -1;
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("id")) {
-                    id = reader.nextString();
-                }
-                else if (name.equals("status")) {
-                    status = reader.nextString();
-                }
-                else if (name.equals("title")) {
-                    title = reader.nextString();
-                }
-                else if (name.equals("image")) {
-                    preview = readCurrent(reader);
-                }
-                else if (name.equals("location")) {
-                    timezone = readTimeZone(reader);
-                }
-                else if (name.equals("statistics")) {
-                    reader.beginObject();
-                    reader.nextName();
-                    views = reader.nextInt();
-                    reader.endObject();
-                }
-                else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-            return new WebcamsMessage(id, status, title, preview, timezone, views);
-        }
-
-
-        public String readCurrent(JsonReader reader) throws IOException {
-            String preview = null;
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("current")) {
-                    preview = readPreview(reader);
-                }
-                else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-
-            return preview;
-        }
-        public String readPreview(JsonReader reader) throws IOException {
-            String preview = null;
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("preview")) {
-                    preview = reader.nextString();
-                }
-                else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-
-            return preview;
-        }
-
-        public String readTimeZone(JsonReader reader) throws IOException {
-            String timezone = null;
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                if (name.equals("timezone")) {
-                    timezone = reader.nextString();
-                }
-                else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-
-            return timezone;
-        }
-
         public WebcamsMessage getMess() {
             return mess;
         }
@@ -447,63 +287,6 @@ public class CityCamActivity extends AppCompatActivity {
 
         public void setErrorOccured(Boolean errorOccured) {
             this.errorOccured = errorOccured;
-        }
-
-        //["result"]["webcams"][0]["id"]    ("1350096618")
-        //["result"]["webcams"][0]["status"] if "active"
-        //["result"]["webcams"][0]["title"]   ("St Petersburg: Saint Petersburg − Intermodal Terminal")
-        //["result"]["webcams"][0]["image"]["current"]["preview"] ("https://images.webcams.travel/preview/1240664025.jpg")
-        //["result"]["webcams"][0]["location"]["timezone"]  ("Europe/Moscow")
-        //["result"]["webcams"][0]["statistics"]["views"]   (28718)
-        public class WebcamsMessage {
-            private String id;
-            private String status;
-            private String title;
-            private String preview;
-            private String timezone;
-            private Integer views;
-            private Bitmap bitmap = null;
-
-            public WebcamsMessage(String id, String status, String title, String preview, String timezone, Integer views) {
-                this.id = id;
-                this.status = status;
-                this.title = title;
-                this.preview = preview;
-                this.timezone = timezone;
-                this.views = views;
-            }
-
-            public String getId() {
-                return id;
-            }
-
-            public String getStatus() {
-                return status;
-            }
-
-            public String getTitle() {
-                return title;
-            }
-
-            public String getPreview() {
-                return preview;
-            }
-
-            public String getTimezone() {
-                return timezone;
-            }
-
-            public Integer getViews() {
-                return views;
-            }
-
-            public Bitmap getBitmap() {
-                return bitmap;
-            }
-
-            public void setBitmap(Bitmap bitmap) {
-                this.bitmap = bitmap;
-            }
         }
     }
 

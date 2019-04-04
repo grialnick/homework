@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">City Cam</string>
-    <string name="id_cam">ID камеры : </string>
-    <string name="title_cam">Место : </string>
-    <string name="timezone_cam">Часовой пояс : </string>
-    <string name="views_cam">Количество просмотров : </string>
+    <string name="id_cam">ID камеры : %s</string>
+    <string name="title_cam">Место : %s</string>
+    <string name="timezone_cam">Часовой пояс : %s</string>
+    <string name="views_cam">Количество просмотров : %d</string>
     <string name="error">Изображение не найдено</string>
 </resources>
