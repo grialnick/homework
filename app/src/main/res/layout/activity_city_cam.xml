@@ -3,9 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff">
+    android:background="@color/colorBackground">
 
     <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -17,16 +18,76 @@
             android:layout_width="320dp"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:background="#999"/>
+            android:background="@color/colorCamBackground"/>
 
         <ProgressBar
             android:id="@+id/progress"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
+        <TextView
+            android:id="@+id/textError"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/error"/>
     </FrameLayout>
+    <RelativeLayout
+        android:id="@+id/table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorTable"
+        android:layout_alignStart="@id/frame"
+        android:layout_alignLeft="@id/frame"
+        android:layout_below="@id/frame">
+        <RelativeLayout
+            android:id="@+id/firstColumn"
+            android:layout_width="@dimen/table_column_width"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/textId"
+                android:layout_width="@dimen/table_column_width"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/table_min_height"
+                android:text="@string/id_cam"/>
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="@dimen/table_column_width"
+                android:minHeight="@dimen/table_min_height"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textId"
+                android:text="@string/title_cam"/>
+        </RelativeLayout>
 
-    <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
-
+        <RelativeLayout
+            android:id="@+id/secondColumn"
+            android:layout_width="@dimen/table_column_width"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_toRightOf="@id/firstColumn"
+            android:layout_toEndOf="@id/firstColumn"
+            android:layout_alignTop="@id/firstColumn"
+            android:layout_alignBottom="@id/firstColumn"
+            >
+            <TextView
+                android:id="@+id/textTimezone"
+                android:layout_width="@dimen/table_column_width"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/table_min_height"
+                android:text="@string/timezone_cam"/>
+            <TextView
+                android:id="@+id/textNumViews"
+                android:layout_width="@dimen/table_column_width"
+                android:minHeight="@dimen/table_min_height"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textTimezone"
+                android:text="@string/views_cam"/>
+        </RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>
