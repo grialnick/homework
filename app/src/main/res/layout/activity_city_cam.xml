@@ -1,32 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff">
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/cam_image"
-            android:layout_width="320dp"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="#999"/>
-
-        <ProgressBar
-            android:id="@+id/progress"
+        <FrameLayout
+            android:id="@+id/frameId"
             android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:id="@+id/cam_image"
+                android:layout_width="320dp"
+                android:layout_height="200dp"
+                android:background="#999"
+                android:scaleType="centerCrop" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/cam_id_title"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
+            android:layout_below="@id/frameId"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="center"
-            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
-    </FrameLayout>
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:text="@string/cam_id_title" />
 
-    <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
+        <TextView
+            android:id="@+id/cam_id"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cam_id_title"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/cam_info_title"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cam_id"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:text="@string/cam_info_title" />
+
+        <TextView
+            android:id="@+id/cam_info"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cam_info_title"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"/>
+
+    </RelativeLayout>
+
+</ScrollView>

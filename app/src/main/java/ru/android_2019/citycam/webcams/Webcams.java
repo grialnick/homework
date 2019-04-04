@@ -21,7 +21,7 @@ public final class Webcams {
     private static final String SHOW = "webcams:image";
 
     private static final String METHOD_NEARBY = "list/nearby";
-    private static final String RADIUS = "50";
+    private static final String RADIUS = "100";
 
 
     /**

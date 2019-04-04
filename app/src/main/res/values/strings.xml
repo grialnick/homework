@@ -3,4 +3,9 @@
     <string name="downloading">Загрузка</string>
     <string name="done">Скачано</string>
     <string name="error">Ощибка</string>
+    <string name="cam_id_title">Id камеры:</string>
+    <string name="cam_info_title">Информация о камере:</string>
+    <string name="no_cam">в городе нет камер</string>
+    <string name="alert">Оповещение</string>
+    <string name="choose_another">выбрать другой город</string>
 </resources>

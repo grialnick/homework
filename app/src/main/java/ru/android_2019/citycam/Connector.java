@@ -1,8 +1,9 @@
 package ru.android_2019.citycam;
 
 import android.graphics.Bitmap;
-import android.os.Message;
+import android.graphics.BitmapFactory;
 import android.util.JsonReader;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,19 +11,21 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
 class Connector {
 
     Connector() {
+        Log.d(TAG, "Connector()");
     }
 
-    Message downloadUrl(URL url) throws IOException {
-        List<Message> messageList = new ArrayList<>();
+    Webcam downloadUrl(URL url) throws IOException {
+        List<Webcam> webcamList;
         InputStream stream = null;
         HttpsURLConnection connection = null;
-        Message result = null;
+        Webcam result = null;
         try {
             connection = (HttpsURLConnection) url.openConnection();
             connection.setReadTimeout(3000);
@@ -37,8 +40,14 @@ class Connector {
             }
             stream = connection.getInputStream();
             if (stream != null) {
-                // Здесь нужно прочитать данные
-                messageList = readJsonStream(stream);
+                webcamList = readJsonStream(stream);
+                Log.d(TAG,"webcamList.size() = " + webcamList.size());
+                if (webcamList.size() > 0) {
+                    int numOfCam;
+                    Random random = new Random();
+                    numOfCam = random.nextInt(webcamList.size());
+                    result = webcamList.get(numOfCam);
+                }
             }
         } finally {
             // Close Stream and disconnect HTTPS connection.
@@ -53,27 +62,47 @@ class Connector {
     }
 
 
-    public List<Message> readJsonStream(InputStream in) throws IOException {
+    public List<Webcam> readJsonStream(InputStream in) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-        try {
-            return readMessagesArray(reader);
-        } finally {
-            reader.close();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String resultName = reader.nextName();
+            Log.d(TAG,resultName);
+            if (resultName.equals("result")) {
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String webcamsName = reader.nextName();
+                    if (webcamsName.equals("webcams")){
+                        try {
+                            return readMessagesArray(reader);
+                        } finally {
+                            reader.close();
+                        }
+                    } else {
+                        reader.skipValue();
+                    }
+                }
+                reader.endObject();
+            } else {
+                reader.skipValue();
+            }
         }
+        reader.endObject();
+        return null;
     }
 
-    private List<Message> readMessagesArray(JsonReader reader) throws IOException {
-        List<Message> messages = new ArrayList<Message>();
+    private List<Webcam> readMessagesArray(JsonReader reader) throws IOException {
+        List<Webcam> webcams = new ArrayList<Webcam>();
 
         reader.beginArray();
         while (reader.hasNext()) {
-            messages.add(readMessage(reader));
+            webcams.add(readMessage(reader));
         }
         reader.endArray();
-        return messages;
+        return webcams;
     }
 
-    private Message readMessage(JsonReader reader) throws IOException {
+    private Webcam readMessage(JsonReader reader) throws IOException {
         long id = -1;
         String title = null;
         Bitmap image = null;
@@ -92,25 +121,39 @@ class Connector {
             }
         }
         reader.endObject();
-        return new Message(id, title, image);
+        return new Webcam(id, title, image);
     }
 
-    private Bitmap readImage(JsonReader reader) {
-        /*TODO*/
-        return null;
-    }
+    private Bitmap readImage(JsonReader reader) throws IOException {
 
+        Bitmap result = null;
 
-    class Message {
-
-        private long id;
-        private String title;
-        private Bitmap bitmap;
-
-        private Message(long id, String title, Bitmap bitmap){
-            this.id = id;
-            this.title = title;
-            this.bitmap = bitmap;
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("current")) {
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String imageName = reader.nextName();
+                    if (imageName.equals("preview")) {
+                        URL newurl = new URL(reader.nextString());
+                        try {
+                            result = BitmapFactory.decodeStream(newurl.openConnection() .getInputStream());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Ошибка передачи изображения" + e.getMessage());
+                        }
+                    } else {
+                        reader.skipValue();
+                    }
+                }
+                reader.endObject();
+            } else {
+                reader.skipValue();
+            }
         }
+        reader.endObject();
+        return result;
     }
+
+    private static final String TAG = "CityCam";
 }
