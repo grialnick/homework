@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.android_2019.citycam.model.City;
+import ru.android_2019.citycam.webcams.BitmapCache;
 import ru.android_2019.citycam.webcams.Webcams;
 
 /**
@@ -73,6 +74,7 @@ public class CityCamActivity extends AppCompatActivity {
             }
         } else {
             downloadTask.attachActivity(this);
+            Log.i(TAG, "Картинка взята из другого активити");
         }
 
     }
@@ -104,7 +106,6 @@ public class CityCamActivity extends AppCompatActivity {
             if (activity != null) {
                 activity.camImageView.setImageBitmap(bitmap);
                 activity.progressView.setVisibility(View.INVISIBLE);
-                Log.i(TAG, "Картинка установлена");
             }
         }
 
@@ -115,8 +116,14 @@ public class CityCamActivity extends AppCompatActivity {
         @Override
         protected Bitmap doInBackground(City... city) {
             try {
-                Bitmap bitmap;
-                for (int radius = 50; (bitmap = download(city[0], radius)) == null; radius *= 2);
+                Bitmap bitmap = BitmapCache.bitmapLruCache.get(city[0].name);
+                if (bitmap == null) {
+                    for (int radius = 50; (bitmap = download(city[0], radius)) == null; radius *= 2);
+                    Log.i(TAG, "Картинка скачана " + city[0].name);
+                } else {
+                    Log.i(TAG, "Картинка взята из кеша " + city[0].name);
+                }
+                BitmapCache.bitmapLruCache.put(city[0].name, bitmap);
                 return bitmap;
             } catch (Exception e) {
                 Log.e(TAG, "Проблемы со скачкой", e);
@@ -166,10 +173,7 @@ public class CityCamActivity extends AppCompatActivity {
                 if (code != HttpURLConnection.HTTP_OK) {
                     throw new IOException("Код ответа: " + code);
                 }
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                Bitmap bitmap = BitmapFactory.decodeStream(in);
-
-                return bitmap;
+                return BitmapFactory.decodeStream(in);
             } catch (IOException e) {
                 Log.e(TAG, "Не получилось скачать", e);
                 return null;
