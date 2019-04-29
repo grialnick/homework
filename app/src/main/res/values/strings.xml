@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="cant_find_camera_mesasge">Cannot find any cameras in this city</string>
 </resources>

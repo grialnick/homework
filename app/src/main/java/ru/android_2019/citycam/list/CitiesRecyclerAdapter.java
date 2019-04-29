@@ -60,7 +60,7 @@ public class CitiesRecyclerAdapter extends RecyclerView.Adapter<CitiesRecyclerAd
 
         public CityViewHolder(View itemView) {
             super(itemView);
-            cityNameView = (TextView) itemView.findViewById(R.id.city_name);
+            cityNameView = itemView.findViewById(R.id.city_name);
         }
     }
 }
