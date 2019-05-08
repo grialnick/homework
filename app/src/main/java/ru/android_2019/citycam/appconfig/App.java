@@ -15,7 +15,7 @@ public class App extends Application {
         webcamDatabase = Room.databaseBuilder(this, WebcamDatabase.class, "database").build();
     }
 
-    public WebcamDatabase getCityDatabase() {
+    public WebcamDatabase getWebcamDB() {
         return webcamDatabase;
     }
 

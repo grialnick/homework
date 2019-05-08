@@ -34,7 +34,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
     @Override
     protected Webcam doInBackground(City... cities) {
         City city = cities[0];
-        WebcamDAO webcamDAO = App.getInstance().getCityDatabase().webcamDao();
+        WebcamDAO webcamDAO = App.getInstance().getWebcamDB().webcamDao();
         Webcam webcam = null;
         try {
             webcam = webcamDAO.selectByName(city.name);
