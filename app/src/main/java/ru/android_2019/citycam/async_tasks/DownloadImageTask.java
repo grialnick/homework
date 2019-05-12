@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.Random;
 
 import ru.android_2019.citycam.appconfig.App;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
@@ -20,7 +19,7 @@ import ru.android_2019.citycam.model.Webcam;
 import ru.android_2019.citycam.parsers.ResponseWebcamParser;
 import ru.android_2019.citycam.webcams.Webcams;
 
-public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
+public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webcam>> {
 
 
     private DownloadCallbacks callbacks;
@@ -32,16 +31,16 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
 
     @SuppressLint("WrongThread")
     @Override
-    protected Webcam doInBackground(City... cities) {
+    protected List<Webcam> doInBackground(City... cities) {
         City city = cities[0];
         WebcamDAO webcamDAO = App.getInstance().getWebcamDB().webcamDao();
-        Webcam webcam = null;
+        List <Webcam> webcams = null;
         try {
-            webcam = webcamDAO.selectByName(city.name);
+            webcams = webcamDAO.selectListWebcamsByName(city.name);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(webcam == null) {
+        if(webcams != null && webcams.isEmpty()) {
             InputStream in = null;
             HttpURLConnection connection = null;
             try {
@@ -52,11 +51,13 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
                     throw new IOException();
                 }
                 in = connection.getInputStream();
-                List<Webcam> webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-                webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
-                if (webcam != null) {
-                    webcam.setCityName(city.name);
-                    webcamDAO.insert(webcam);
+                webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
+                //webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
+                if (webcams != null && !webcams.isEmpty()) {
+                    for(Webcam webcam : webcams) {
+                        webcam.setCityName(city.name);
+                    }
+                    webcamDAO.insertWebcams(webcams);
                 }
             } catch (java.io.IOException e) {
                 e.printStackTrace();
@@ -74,13 +75,13 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, Webcam> {
             }
             Log.d(String.valueOf(this), "AsyncTask");
         }
-        return webcam;
+        return webcams;
     }
 
 
     @Override
-    protected void onPostExecute(Webcam webcam) {
-        callbacks.onPostExecute(webcam);
+    protected void onPostExecute(List <Webcam> webcams) {
+        callbacks.onPostExecute(webcams);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ru.android_2019.citycam;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -8,6 +9,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.util.List;
+import java.util.Random;
 
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.model.City;
@@ -59,12 +63,14 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
     private static final String TAG = "CityCam";
 
 
+    @SuppressLint("SetTextI18n")
     @Override
-    public void onPostExecute(Webcam webcam) {
-        if(webcam == null) {
+    public void onPostExecute(List<Webcam> webcams) {
+        if(webcams.isEmpty()) {
             camImageView.setImageResource(R.drawable.image);
             webcamTitle.setText("Sorry, we not found any Webcam in this City:(");
         } else {
+            Webcam webcam =  webcams.get(new Random().nextInt(webcams.size()));
             camImageView.setImageBitmap(webcam.getImage());
             webcamTitle.setText(webcam.getTitle());
         }
