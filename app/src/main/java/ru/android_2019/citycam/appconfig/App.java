@@ -12,7 +12,9 @@ public class App extends Application {
     public void onCreate(){
         super.onCreate();
         instance = this;
-        webcamDatabase = Room.databaseBuilder(this, WebcamDatabase.class, "database").build();
+        webcamDatabase = Room.
+                databaseBuilder(this, WebcamDatabase.class, "database")
+                .fallbackToDestructiveMigration().build();
     }
 
     public WebcamDatabase getWebcamDB() {
