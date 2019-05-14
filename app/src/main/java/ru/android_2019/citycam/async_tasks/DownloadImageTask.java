@@ -49,11 +49,14 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
             }
             in = connection.getInputStream();
             webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
+            if(webcams.isEmpty()) {
+                webcamDAO.insertWebcams(webcams);
+            }
         } catch (java.io.IOException e) {
             webcams = getListFromDatabase(city.name);
         } finally {
             if (connection != null) {
-                    connection.disconnect();
+                connection.disconnect();
             }
             if (in != null) {
                 try {
