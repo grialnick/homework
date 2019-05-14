@@ -8,8 +8,7 @@
         android:id="@+id/frameLayout_cam"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp">
 
@@ -33,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/frameLayout_cam"
-        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
         android:enabled="false"
         android:text="@string/button_update_prev_image" />
 
@@ -41,8 +40,8 @@
         android:id="@+id/textView_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button_update_image"
         android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
@@ -52,6 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textView_id"
         android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
@@ -61,6 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textView_title"
         android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
@@ -70,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textView_categories"
         android:layout_margin="10dp"
+        android:layout_toRightOf="@id/frameLayout_cam"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 

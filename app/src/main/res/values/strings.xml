@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="not_found_webcam">Камера не найдена.</string>
+    <string name="webcam_id">ID камеры</string>
+    <string name="webcam_title">Название камеры</string>
+    <string name="webcam_catigories">Катергории камеры</string>
+    <string name="webcam_location">Место нахождение камеры</string>
+    <string name="button_update_prev_image">Обновить</string>
 </resources>
