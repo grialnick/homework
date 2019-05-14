@@ -22,8 +22,9 @@ public class Webcam {
     @TypeConverters(BitmapConverter.class)
     private Bitmap bitmap;
 
-    public Webcam(final long id, final String title, @NonNull final URL imageUrl) throws IOException {
+    public Webcam(final long id, final String title, @NonNull final URL imageUrl, @NonNull String cityName) throws IOException {
         this.id = id;
+        this.cityName = cityName;
         this.title = title;
         this.bitmap = BitmapFactory.decodeStream(imageUrl.openStream());
     }

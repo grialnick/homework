@@ -15,7 +15,7 @@ public class ResponseWebcamParser  {
 
 
 
-    public static List<Webcam> listResponseWebcam(InputStream in, String charset)
+    public static List<Webcam> listResponseWebcam(InputStream in, String charset, String cityName)
             throws IOException {
         JsonReader jsonReader = new JsonReader(new InputStreamReader(in, charset));
         List <Webcam> webcams = new ArrayList<>();
@@ -23,7 +23,7 @@ public class ResponseWebcamParser  {
         while (jsonReader.hasNext()) {
             String name = jsonReader.nextName();
             if(name.equals("result")) {
-                webcams = readResponse(jsonReader);
+                webcams = readResponse(jsonReader, cityName);
             }
             else if(name.equals("status")) {
                 String status = jsonReader.nextString();
@@ -39,13 +39,13 @@ public class ResponseWebcamParser  {
         return webcams;
     }
 
-    private static List<Webcam> readResponse(JsonReader jsonReader) throws IOException {
+    private static List<Webcam> readResponse(JsonReader jsonReader, String cityName) throws IOException {
         jsonReader.beginObject();
         List <Webcam> webcams = new ArrayList<>();
         while (jsonReader.hasNext()) {
             String name = jsonReader.nextName();
             if(name.equals("webcams")) {
-                webcams = readWebcamsList(jsonReader);
+                webcams = readWebcamsList(jsonReader, cityName);
             }
             else {
                 jsonReader.skipValue();
@@ -55,17 +55,17 @@ public class ResponseWebcamParser  {
         return webcams;
     }
 
-    private static List<Webcam> readWebcamsList(JsonReader jsonReader) throws IOException {
+    private static List<Webcam> readWebcamsList(JsonReader jsonReader, String cityName) throws IOException {
         List <Webcam> webcams = new ArrayList<>();
         jsonReader.beginArray();
         while (jsonReader.hasNext()) {
-            webcams.add(readWebcam(jsonReader));
+            webcams.add(readWebcam(jsonReader, cityName));
         }
         jsonReader.endArray();
         return webcams;
     }
 
-    private static Webcam readWebcam(JsonReader jsonReader) throws IOException {
+    private static Webcam readWebcam(JsonReader jsonReader, String cityName) throws IOException {
         Long id = null;
         String title = null;
         URL imageUrl = null;
@@ -89,7 +89,7 @@ public class ResponseWebcamParser  {
         }
         jsonReader.endObject();
 
-        return new Webcam(id, title, imageUrl);
+        return new Webcam(id, title, imageUrl, cityName);
     }
 
     private static URL readImage(JsonReader jsonReader) throws IOException {

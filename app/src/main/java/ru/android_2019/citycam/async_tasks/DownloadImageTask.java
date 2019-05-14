@@ -35,7 +35,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
         final List<Webcam> webcamsFromServer = getWebcamsFromServer(city);
         if (!webcamsFromServer.isEmpty()) {
             assert city.name != null;
-            putWebcamsToCache(webcamsFromServer, city.name);
+            putWebcamsToCache(webcamsFromServer);
             return webcamsFromServer;
         }
         return getWebcamsFromCache(city);
@@ -53,7 +53,7 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
                 throw new IOException("Bad reply from the server");
             }
             in = connection.getInputStream();
-            final List<Webcam> result = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
+            final List<Webcam> result = ResponseWebcamParser.listResponseWebcam(in, "UTF-8", city.name);
             return result != null ? result : new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,11 +83,8 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
         }
     }
 
-    private static void putWebcamsToCache(final List<Webcam> webcams, @NonNull String cityName) {
+    private static void putWebcamsToCache(final List<Webcam> webcams) {
         try {
-            for(Webcam webcam : webcams) {
-                webcam.setCityName(cityName);
-            }
             App.getInstance().getWebcamDB().webcamDao().insertWebcams(webcams);
         } catch (Exception e) {
             e.printStackTrace();
