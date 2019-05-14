@@ -3,7 +3,6 @@ package ru.android_2019.citycam.asyncTask;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -20,9 +19,15 @@ public class DownloadUtils {
                 .addHeader(Webcams.getHeaderApiKey(), Webcams.getHeaderApiValue())
                 .build();
         Response response = client.newCall(request).execute();
-        String result = response.body().string();
-        response.close();
-        return result;
+        if (response.isSuccessful()) {
+            String result = response.body().string();
+            response.close();
+            return result;
+        } else {
+            response.close();
+            return null;
+        }
+
     }
 
     public static Bitmap getBitmap(URL url) throws IOException {
