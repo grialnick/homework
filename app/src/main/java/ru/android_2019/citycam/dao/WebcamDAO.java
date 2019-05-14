@@ -3,6 +3,7 @@ package ru.android_2019.citycam.dao;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 
 import java.io.IOException;
@@ -17,4 +18,7 @@ public interface WebcamDAO {
 
     @Query("SELECT * FROM webcam WHERE cityName IS :cityName")
     List <Webcam> selectListWebcamsByName(String cityName) throws IOException;
+
+    @Update
+    void updateListWebcams(List <Webcam> webcams);
 }

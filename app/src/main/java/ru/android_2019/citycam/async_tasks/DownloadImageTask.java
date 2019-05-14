@@ -25,7 +25,10 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
 
     private DownloadCallbacks callbacks;
 
+    private WebcamDAO webcamDAO;
+
     public DownloadImageTask(DownloadCallbacks callbacks) {
+        webcamDAO = App.getInstance().getWebcamDB().webcamDao();
         this.callbacks = callbacks;
     }
 
@@ -34,50 +37,47 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
     @Override
     protected List<Webcam> doInBackground(City... cities) {
         City city = cities[0];
-        WebcamDAO webcamDAO = App.getInstance().getWebcamDB().webcamDao();
         List <Webcam> webcams = null;
+        InputStream in = null;
+        HttpURLConnection connection = null;
         try {
-            webcams = webcamDAO.selectListWebcamsByName(city.name);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(webcams != null && webcams.isEmpty()) {
-            InputStream in = null;
-            HttpURLConnection connection = null;
-            try {
-                URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
-                connection = ConnectionApi.getConnection(url);
-                connection.connect();
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    throw new IOException();
-                }
-                in = connection.getInputStream();
-                webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-                if (webcams != null && !webcams.isEmpty()) {
-                    for(Webcam webcam : webcams) {
-                        webcam.setCityName(city.name);
-                    }
-                    webcamDAO.insertWebcams(webcams);
-                }
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (connection != null) {
+            URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
+            connection = ConnectionApi.getConnection(url);
+            connection.connect();
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException();
+            }
+            in = connection.getInputStream();
+            webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
+        } catch (java.io.IOException e) {
+            webcams = getListFromDatabase(city.name);
+        } finally {
+            if (connection != null) {
                     connection.disconnect();
-                }
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-            Log.d(String.valueOf(this), "AsyncTask");
+            webcamDAO.updateListWebcams(webcams);
         }
+        Log.d(String.valueOf(this), "AsyncTask");
         return webcams;
     }
 
+    private List <Webcam> getListFromDatabase(String cityName){
+        webcamDAO = App.getInstance().getWebcamDB().webcamDao();
+        List <Webcam> webcams = null;
+        try {
+            webcams = webcamDAO.selectListWebcamsByName(cityName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return webcams;
+    }
 
     @Override
     protected void onPostExecute(List <Webcam> webcams) {

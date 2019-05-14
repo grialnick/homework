@@ -83,6 +83,7 @@ public class ResponseWebcamParser  {
             }
         }
         jsonReader.endObject();
+        assert imageUrl != null;
         return new Webcam(title, imageUrl);
     }
 
