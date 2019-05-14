@@ -66,7 +66,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
     @SuppressLint("SetTextI18n")
     @Override
     public void onPostExecute(List<Webcam> webcams) {
-        if(webcams.isEmpty()) {
+        if(webcams == null || webcams.isEmpty()) {
             camImageView.setImageResource(R.drawable.image);
             webcamTitle.setText("Sorry, we not found any Webcam in this City:(");
         } else {
