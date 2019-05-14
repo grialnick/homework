@@ -19,6 +19,6 @@ public interface WebcamDAO {
     @Query("SELECT * FROM webcam WHERE cityName IS :cityName")
     List <Webcam> selectListWebcamsByName(String cityName) throws IOException;
 
-    @Update
+    @Update()
     void updateListWebcams(List <Webcam> webcams);
 }
