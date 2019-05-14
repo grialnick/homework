@@ -1,11 +1,16 @@
 package ru.android_2019.citycam.model;
 
+
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.UUID;
+
 
 /**
  * Город
  */
+
 public class City implements Parcelable {
 
     /**
@@ -24,11 +29,16 @@ public class City implements Parcelable {
     public final double longitude;
 
 
+
+
+
     public City(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+
 
     @Override
     public String toString() {
