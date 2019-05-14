@@ -11,7 +11,6 @@ import java.util.Objects;
 
 import ru.android_2019.citycam.async_tasks.DownloadImageTask;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
-import ru.android_2019.citycam.dao.WebcamDAO;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 
@@ -23,8 +22,6 @@ public final class CityCamFragment extends Fragment implements DownloadCallbacks
     private static final Object NO_WEBCAM = new Object();
     private boolean isActivityCreated = false;
     private Object webcamToPublish = null;
-    private WebcamDAO webcamDAO;
-    private City city;
 
     @NonNull
     public static Fragment newInstance(City city) {
@@ -54,7 +51,7 @@ public final class CityCamFragment extends Fragment implements DownloadCallbacks
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        city = Objects.requireNonNull(getArguments()).getParcelable(CITY);
+        City city = Objects.requireNonNull(getArguments()).getParcelable(CITY);
         DownloadImageTask downloadImageTask = new DownloadImageTask(this);
         downloadImageTask.execute(city);
     }
