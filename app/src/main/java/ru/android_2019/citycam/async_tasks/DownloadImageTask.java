@@ -69,7 +69,6 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
     }
 
     private List <Webcam> getListFromDatabase(String cityName){
-        webcamDAO = App.getInstance().getWebcamDB().webcamDao();
         List <Webcam> webcams = null;
         try {
             webcams = webcamDAO.selectListWebcamsByName(cityName);
