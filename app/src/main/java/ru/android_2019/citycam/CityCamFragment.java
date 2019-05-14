@@ -7,21 +7,24 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import java.util.List;
 import java.util.Objects;
 
 import ru.android_2019.citycam.async_tasks.DownloadImageTask;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
+import ru.android_2019.citycam.dao.WebcamDAO;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.model.Webcam;
 
 
-public class CityCamFragment extends Fragment implements DownloadCallbacks {
+public final class CityCamFragment extends Fragment implements DownloadCallbacks {
 
     private static final String CITY = "extra_city";
     private DownloadCallbacks callbacks;
+    private static final Object NO_WEBCAM = new Object();
     private boolean isActivityCreated = false;
-    private List <Webcam> webcamList;
+    private Object webcamToPublish = null;
+    private WebcamDAO webcamDAO;
+    private City city;
 
     @NonNull
     public static Fragment newInstance(City city) {
@@ -51,7 +54,7 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        City city = Objects.requireNonNull(getArguments()).getParcelable(CITY);
+        city = Objects.requireNonNull(getArguments()).getParcelable(CITY);
         DownloadImageTask downloadImageTask = new DownloadImageTask(this);
         downloadImageTask.execute(city);
     }
@@ -60,9 +63,9 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         isActivityCreated = true;
-        if (callbacks != null && webcamList != null) {
+        if (callbacks != null && webcamToPublish != null) {
             callbacks.onProgressUpdate(100);
-            callbacks.onPostExecute(webcamList);
+            callbacks.onPostExecute(webcamToPublish != NO_WEBCAM? (Webcam) webcamToPublish : null);
         }
     }
 
@@ -77,11 +80,11 @@ public class CityCamFragment extends Fragment implements DownloadCallbacks {
 
 
     @Override
-    public void onPostExecute(final List<Webcam> webcams) {
-        webcamList = webcams;
+    public void onPostExecute(final Webcam webcam) {
+        webcamToPublish = webcam != null ? webcam : NO_WEBCAM;
         if (isActivityCreated && callbacks != null) {
             callbacks.onProgressUpdate(100);
-            callbacks.onPostExecute(webcams);
+            callbacks.onPostExecute(webcam);
         }
     }
 }

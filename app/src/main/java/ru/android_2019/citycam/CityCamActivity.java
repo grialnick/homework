@@ -10,8 +10,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.List;
-import java.util.Random;
+import java.util.Objects;
 
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
 import ru.android_2019.citycam.model.City;
@@ -30,7 +29,6 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
     public static final String EXTRA_CITY = "city";
     private static final String TAG_TASK_FRAGMENT = "task_fragment";
 
-    private City city;
     private ImageView camImageView;
     private ProgressBar progressView;
     private TextView webcamTitle;
@@ -39,7 +37,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        city = getIntent().getParcelableExtra(EXTRA_CITY);
+        City city = getIntent().getParcelableExtra(EXTRA_CITY);
         if (city == null) {
             Log.w(TAG, "City object not provided in extra parameter: " + EXTRA_CITY);
             finish();
@@ -48,7 +46,7 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
         camImageView = (ImageView) findViewById(R.id.cam_image);
         progressView = (ProgressBar) findViewById(R.id.progress);
         webcamTitle = findViewById(R.id.activity_city__title);
-        getSupportActionBar().setTitle(city.name);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(city.name);
         progressView.setVisibility(View.VISIBLE);
         progressView.setMax(100);
 
@@ -65,12 +63,11 @@ public class CityCamActivity extends AppCompatActivity  implements DownloadCallb
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onPostExecute(List<Webcam> webcams) {
-        if(webcams == null || webcams.isEmpty()) {
+    public void onPostExecute(Webcam webcam) {
+        if(webcam == null) {
             camImageView.setImageResource(R.drawable.image);
             webcamTitle.setText("Sorry, we not found any Webcam in this City:(");
         } else {
-            Webcam webcam =  webcams.get(new Random().nextInt(webcams.size()));
             camImageView.setImageBitmap(webcam.getImage());
             webcamTitle.setText(webcam.getTitle());
         }

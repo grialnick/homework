@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 
 import ru.android_2019.citycam.appconfig.App;
 import ru.android_2019.citycam.callbacks.DownloadCallbacks;
@@ -52,7 +53,6 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
                 }
                 in = connection.getInputStream();
                 webcams = ResponseWebcamParser.listResponseWebcam(in, "UTF-8");
-                //webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
                 if (webcams != null && !webcams.isEmpty()) {
                     for(Webcam webcam : webcams) {
                         webcam.setCityName(city.name);
@@ -81,7 +81,8 @@ public final class DownloadImageTask extends AsyncTask<City, Integer, List <Webc
 
     @Override
     protected void onPostExecute(List <Webcam> webcams) {
-        callbacks.onPostExecute(webcams);
+        Webcam webcam = webcams != null && !webcams.isEmpty() ? webcams.get(new Random().nextInt(webcams.size())) : null;
+        callbacks.onPostExecute(webcam);
     }
 
     @Override
