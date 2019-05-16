@@ -16,7 +16,6 @@ import java.net.URL
  * Методы для скачивания файлов.
  */
 object Download {
-
     private const val TAG = "Download"
 
     fun loadResponse(downloadUrl: URL): List<Webcam> {
@@ -27,7 +26,6 @@ object Download {
         val webcams: List<Webcam>
 
         try {
-
             val responseCode = conn.responseCode
             Log.d(TAG, "Received HTTP response code: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -57,13 +55,11 @@ object Download {
 
     fun downloadImage(downloadUrl: URL): Bitmap {
         Log.d(TAG, "Start downloading url: $downloadUrl")
-
         val conn = downloadUrl.openConnection() as HttpURLConnection
         var `in`: InputStream? = null
         val image: Bitmap
 
         try {
-
             val responseCode = conn.responseCode
             Log.d(TAG, "Received HTTP response code: $responseCode")
             if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -89,5 +85,4 @@ object Download {
         }
         return image
     }
-
 }

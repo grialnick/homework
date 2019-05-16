@@ -56,13 +56,7 @@ class CityCamActivity : AppCompatActivity() {
         }
         downloadTask = LoadWebcamTask(this)
         downloadTask!!.execute()
-
     }
-
-//    override fun onRetainCustomNonConfigurationInstance(): Any {
-//        downloadTask?.attachActivity()
-//        return downloadTask as LoadWebcamTask
-//    }
 
     companion object {
         const val EXTRA_CITY = "city"

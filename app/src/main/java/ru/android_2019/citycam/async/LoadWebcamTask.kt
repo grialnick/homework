@@ -12,7 +12,7 @@ import ru.android_2019.citycam.Webcam
 import java.net.URL
 
 
-internal class LoadWebcamTask(// Текущий объект Activity, храним для обновления отображения
+internal class LoadWebcamTask(
         private var activity: CityCamActivity?) : AsyncTask<Void, Void, TaskState>() {
 
     private var image: Bitmap? = null

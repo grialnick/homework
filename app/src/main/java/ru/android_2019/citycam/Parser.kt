@@ -7,7 +7,6 @@ import java.io.InputStreamReader
 import java.util.ArrayList
 
 object Parser {
-
     fun readJsonStream(`in`: InputStream): List<Webcam>? {
         val reader = JsonReader(InputStreamReader(`in`, "UTF-8"))
         try {
@@ -48,7 +47,6 @@ object Parser {
             }
         }
         reader.endObject()
-
         return webcams
     }
 
@@ -78,5 +76,4 @@ object Parser {
         reader.endObject()
         return Webcam(title!!, city!!, previewUrl!!)
     }
-
 }
