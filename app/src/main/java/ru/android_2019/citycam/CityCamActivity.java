@@ -1,5 +1,6 @@
 package ru.android_2019.citycam;
 
+import android.arch.persistence.room.Room;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,7 +10,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import ru.android_2019.citycam.model.City;
-import ru.android_2019.citycam.webcams.cache.WebcamCache;
+import ru.android_2019.citycam.webcams.store.WebcamDao;
+import ru.android_2019.citycam.webcams.store.WebcamDatabase;
 import ru.android_2019.citycam.webcams.tasks.WebcamsTask;
 
 /**
@@ -28,7 +30,7 @@ public class CityCamActivity extends AppCompatActivity {
     private ProgressBar progressView;
     private TextView titleImageView;
     private WebcamsTask task;
-    private WebcamCache webcamCache;
+    private WebcamDao webcamDao;
 
     public City getCity() {
         return city;
@@ -46,8 +48,8 @@ public class CityCamActivity extends AppCompatActivity {
         return titleImageView;
     }
 
-    public WebcamCache getWebcamCache() {
-        return webcamCache;
+    public WebcamDao getWebcamDao() {
+        return webcamDao;
     }
 
     @Override
@@ -69,11 +71,13 @@ public class CityCamActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city_cam);
-        camImageView = (ImageView) findViewById(R.id.cam_image);
-        progressView = (ProgressBar) findViewById(R.id.progress);
-        titleImageView = (TextView) findViewById(R.id.cam_image_title);
+        camImageView = findViewById(R.id.cam_image);
+        progressView = findViewById(R.id.progress);
+        titleImageView = findViewById(R.id.cam_image_title);
 
-        webcamCache = WebcamCache.getInstance();
+        WebcamDatabase db =  Room.databaseBuilder(getApplicationContext(),
+                WebcamDatabase.class, "webcam-database").build();
+        this.webcamDao = db.webcamDao();
 
         getSupportActionBar().setTitle(city.name);
 

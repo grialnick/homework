@@ -8,15 +8,16 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.android_2019.citycam.webcams.model.Webcam;
-import ru.android_2019.citycam.webcams.model.Webcam.TypeImage;
+import ru.android_2019.citycam.webcams.store.Webcam;
+import ru.android_2019.citycam.webcams.store.Webcam.TypeImage;
 import ru.android_2019.citycam.webcams.exceptions.BadResponseException;
 
 public final class WebcamsResponseParser {
 
-    public static List<Webcam> parseWebcamsResponse(InputStream in, String charset)
-            throws IOException,
-            BadResponseException {
+    public static List<Webcam> parseWebcamsResponse(
+            String cityName,
+            InputStream in,
+            String charset) throws IOException, BadResponseException {
 
         JsonReader reader = new JsonReader(new InputStreamReader(in, charset));
         List<Webcam> webcams = new ArrayList<>();
@@ -25,7 +26,7 @@ public final class WebcamsResponseParser {
         while (reader.hasNext()){
             String name = reader.nextName();
             if (name.equals("result")) {
-                webcams = readResult(reader);
+                webcams = readResult(cityName, reader);
             } else if (name.equals("status")){
                 String status = reader.nextString();
                 if (!status.equals("OK")) {
@@ -40,8 +41,9 @@ public final class WebcamsResponseParser {
         return webcams;
     }
 
-    private static List<Webcam> readResult(JsonReader reader)
-            throws IOException {
+    private static List<Webcam> readResult(
+            String cityName,
+            JsonReader reader) throws IOException {
 
         List<Webcam> webcams = new ArrayList<>();
 
@@ -49,7 +51,7 @@ public final class WebcamsResponseParser {
         while (reader.hasNext()) {
             String name = reader.nextName();
             if (name.equals("webcams")) {
-                webcams = readWebcamsArray(reader);
+                webcams = readWebcamsArray(cityName, reader);
             } else {
                 reader.skipValue();
             }
@@ -59,33 +61,32 @@ public final class WebcamsResponseParser {
         return webcams;
     }
 
-    private static List<Webcam> readWebcamsArray(JsonReader reader)
-            throws IOException {
+    private static List<Webcam> readWebcamsArray(
+            String cityName,
+            JsonReader reader) throws IOException {
 
         List<Webcam> webcams = new ArrayList<>();
 
         reader.beginArray();
         while (reader.hasNext()) {
-            webcams.add(readWebcam(reader));
+            webcams.add(readWebcam(cityName, reader));
         }
         reader.endArray();
 
         return webcams;
     }
 
-    private static Webcam readWebcam(JsonReader reader)
-            throws IOException {
+    private static Webcam readWebcam(
+            String cityName,
+            JsonReader reader) throws IOException {
 
-        String id = null;
         String title = null;
         String imageUrl = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
-            if (name.equals("id")) {
-                id = reader.nextString();
-            } else if (name.equals("title")) {
+            if (name.equals("title")) {
                 title = reader.nextString();
             } else if (name.equals("image")) {
                 imageUrl = readImages(reader);
@@ -94,8 +95,10 @@ public final class WebcamsResponseParser {
             }
         }
         reader.endObject();
-
-        return new Webcam(id, title, imageUrl);
+        Webcam webcam = new Webcam(cityName);
+        webcam.setTitle(title);
+        webcam.setImageUrl(imageUrl);
+        return webcam;
     }
 
     private static String readImages(JsonReader reader)

@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -17,9 +16,9 @@ import java.util.List;
 import ru.android_2019.citycam.CityCamActivity;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.api.WebcamsAPI;
-import ru.android_2019.citycam.webcams.cache.WebcamCache;
 import ru.android_2019.citycam.webcams.exceptions.BadResponseException;
-import ru.android_2019.citycam.webcams.model.Webcam;
+import ru.android_2019.citycam.webcams.store.Webcam;
+import ru.android_2019.citycam.webcams.store.WebcamDao;
 
 import static ru.android_2019.citycam.webcams.parser.WebcamsResponseParser.parseWebcamsResponse;
 
@@ -38,39 +37,44 @@ public class WebcamsTask extends AsyncTask<Void, Void, Webcam> {
     protected Webcam doInBackground(Void... params) {
         HttpURLConnection connection = null;
         Webcam webcam = null;
+        City city = activity.getCity();
+        WebcamDao webcamDao = activity.getWebcamDao();
 
         try {
-            City city = activity.getCity();
-            WebcamCache webcamCache = activity.getWebcamCache();
-            webcam = webcamCache.getWebcamFromMemory(city.name);
+            connection = WebcamsAPI.createNearbyUrl(
+                    city.latitude,
+                    city.longitude,
+                    DEFAULT_RADIUS);
+            connection.connect();
 
-            if (webcam == null) {
-                connection = WebcamsAPI.createNearbyUrl(city.latitude, city.longitude, DEFAULT_RADIUS);
-                connection.connect();
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                List<Webcam> webcams = parseWebcamsResponse(city.name, inputStream, "UTF-8");
+                webcam = getFirstWebcam(webcams);
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    List<Webcam> webcams = parseWebcamsResponse(inputStream, "UTF-8");
-                    webcam = getFirstWebcam(webcams);
-
-                    if (webcam != null) {
-                        URL imageUrl = new URL(webcam.getImageUrl());
-                        Log.i(TAG, "URL of image: " + imageUrl);
-                        webcam.setBitmap(BitmapFactory.decodeStream(imageUrl.openStream()));
-                        webcamCache.setWebcamToMemory(city.name, webcam);
-                    } else {
+                if (webcam != null) {
+                    URL imageUrl = new URL(webcam.getImageUrl());
+                    Log.i(TAG, "URL of image: " + imageUrl);
+                    webcam.setBitmap(BitmapFactory.decodeStream(imageUrl.openStream()));
+                    webcamDao.insert(webcam);
+                } else {
+                    webcam = webcamDao.getByCityName(city.name);
+                    if (webcam == null) {
                         Log.i(TAG, "No images found");
                     }
-                } else {
-                    throw new BadResponseException("HTTP: " + connection.getResponseCode()
-                            + ", " + connection.getResponseMessage());
                 }
             } else {
-                Log.i(TAG, "Image of " + city.name + " was taken from cache");
+                webcam = webcamDao.getByCityName(city.name);
+                if (webcam == null) {
+                    Log.i(TAG, "No images found");
+                }
             }
 
         } catch (IOException e) {
-            Log.e(TAG, "Unable to create channel between application and network resource");
+            webcam = webcamDao.getByCityName(city.name);
+            if (webcam == null) {
+                Log.i(TAG, "No images found");
+            }
         } catch (BadResponseException e) {
             Log.e(TAG,"Failed to get webcams:", e);
         } finally {
