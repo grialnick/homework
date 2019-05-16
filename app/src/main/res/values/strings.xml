@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">City Cam</string>
+    <string name="image_not_found">Image not found</string>
 </resources>
