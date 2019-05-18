@@ -146,13 +146,15 @@ public class CityCamActivity extends AppCompatActivity {
 
         void getDataFromDatabase(String cityName) {
             CityCamActivity activity = weakReference.get();
-            list = activity.webcamDAO.getWebcamsByCity(cityName);
+            if (activity != null) {
+                list = activity.webcamDAO.getWebcamsByCity(cityName);
+            }
         }
 
         void insertToDatabase(List<Webcam> webcamList) {
-            CityCamActivity cityCamActivity = weakReference.get();
-            if (cityCamActivity != null) {
-                cityCamActivity.webcamDAO.insertOrUpdateList(webcamList);
+            CityCamActivity activity = weakReference.get();
+            if (activity != null) {
+                activity.webcamDAO.insertOrUpdateList(webcamList);
             }
         }
 
