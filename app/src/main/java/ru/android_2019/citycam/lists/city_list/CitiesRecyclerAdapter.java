@@ -1,6 +1,7 @@
-package ru.android_2019.citycam.list;
+package ru.android_2019.citycam.lists.city_list;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,14 +30,14 @@ public class CitiesRecyclerAdapter extends RecyclerView.Adapter<CitiesRecyclerAd
     }
 
     @Override
-    public CityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CityViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.item_city, parent, false);
         view.setOnClickListener(this);
         return new CityViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(CityViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CityViewHolder holder, int position) {
         City city = LargeRussianCities.getCity(position);
         holder.cityNameView.setText(city.name);
         holder.itemView.setTag(R.id.tag_city, city);
@@ -58,9 +59,9 @@ public class CitiesRecyclerAdapter extends RecyclerView.Adapter<CitiesRecyclerAd
     static class CityViewHolder extends RecyclerView.ViewHolder {
         final TextView cityNameView;
 
-        public CityViewHolder(View itemView) {
+        CityViewHolder(View itemView) {
             super(itemView);
-            cityNameView = (TextView) itemView.findViewById(R.id.city_name);
+            cityNameView =  itemView.findViewById(R.id.city_name);
         }
     }
 }
