@@ -81,6 +81,7 @@ class JsonParser {
             } else if (name.equals("image")) {
                 webcam.setImageURL(readImageURL(reader));
             } else if (name.equals("location")) {
+                ;
                 webcam.setLocation(readLocation(reader));
             } else if (name.equals("statistics")) {
                 webcam.setViews(readViews(reader));

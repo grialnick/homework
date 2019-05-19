@@ -19,7 +19,7 @@ import ru.android_2019.citycam.webcams.Webcams;
 class DownloadWebcamInfoTask extends AsyncTask<City, Void, Webcam> {
     private CityCamActivity activity;
     private Webcam webcam = null;
-    private WebcamsCache cache = WebcamsCache.getInstance();
+    private WebcamDao webcamDao = WebcamApp.getInstance().getDatabase().webcamDao();
 
     public DownloadWebcamInfoTask(CityCamActivity activity) {
         this.activity = activity;
@@ -66,32 +66,35 @@ class DownloadWebcamInfoTask extends AsyncTask<City, Void, Webcam> {
     private Webcam downloadWebcams(City city) throws IOException {
         InputStream stream = null;
         HttpsURLConnection urlConnection = null;
-        List<Webcam> webcams = cache.get(city.name);
-        if (webcams == null) {
-            URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
-            try {
-                urlConnection = (HttpsURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("X-RapidAPI-Key", "df6d6603ddmsh555507aa6abb190p1419f9jsnacbcaa2ba59b");
-                urlConnection.connect();
-                int responseCode = urlConnection.getResponseCode();
-                if (responseCode != HttpsURLConnection.HTTP_OK) {
-                    throw new IOException("HTTP error code: " + responseCode);
-                }
+        List<Webcam> webcams;
+        URL url = Webcams.createNearbyUrl(city.latitude, city.longitude);
+        try {
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty("X-RapidAPI-Key", "df6d6603ddmsh555507aa6abb190p1419f9jsnacbcaa2ba59b");
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK) {
                 stream = urlConnection.getInputStream();
                 if (stream != null) {
                     JsonParser parser = new JsonParser();
                     webcams = parser.readJsonStream(stream);
+                } else {
+                    webcams = webcamDao.getByCityName(city.name);
                 }
-            } finally {
-                if (stream != null) {
-                    stream.close();
-                }
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+            } else {
+                webcams = webcamDao.getByCityName(city.name);
+            }
+        } catch (IOException e) {
+            webcams = webcamDao.getByCityName(city.name);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+            if (urlConnection != null) {
+                urlConnection.disconnect();
             }
         }
+
         if (webcams != null && !webcams.isEmpty()) {
             int index = 0;
             if (webcams.size() > 1) {
@@ -101,9 +104,10 @@ class DownloadWebcamInfoTask extends AsyncTask<City, Void, Webcam> {
             Bitmap bitmap = webcam.getBitmap();
             if (bitmap == null) {
                 bitmap = downloadBitmap(new URL(webcam.getImageURL()));
-                cache.put(city.name, webcams);
+                webcam.setCityName(city.name);
+                webcam.setBitmap(bitmap);
+                webcamDao.insert(webcam);
             }
-            webcam.setBitmap(bitmap);
         }
         return webcam;
     }
