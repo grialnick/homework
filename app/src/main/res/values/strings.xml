@@ -16,4 +16,6 @@
     <string name="views">Количество просмотров:&#160;</string>
     <string name="webcam_link">Ссылка на камеру:&#160;</string>
     <string name="no_info">Нет информации</string>
+    <string name="cached">Нет соединения с интернетом, данные могли устареть</string>
+    <string name="no_network">Необходимо соединение с интернетом</string>
 </resources>
