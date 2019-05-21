@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="wrap_content"
+                                             android:background="#fff"
+                                             android:paddingTop="20dp"
+                                             android:paddingBottom="20dp">
+
+    <TextView
+            android:id="@+id/activity_city_cam_item__title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/header"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+            android:id="@+id/activity_city_cam_item__image"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorPrimary"
+            android:contentDescription="@string/imagePlaceholder"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam_item__title"/>
+
+    <TextView
+            android:id="@+id/activity_city_cam_item__city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/city_title"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam_item__image"/>
+
+    <TextView
+            android:id="@+id/activity_city_cam_item__time"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/time"
+            app:layout_constraintTop_toBottomOf="@id/activity_city_cam_item__city"/>
+
+
+</android.support.constraint.ConstraintLayout>

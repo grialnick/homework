@@ -1,32 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#fff">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@android:color/background_light">
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true">
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/activity_city_cam__list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/cam_image"
-            android:layout_width="320dp"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="#999"/>
+    </android.support.v7.widget.RecyclerView>
 
-        <ProgressBar
-            android:id="@+id/progress"
+    <ProgressBar
+            android:id="@+id/activity_city_cam__progress"
+            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+    <TextView
+            android:id="@+id/activity_city_cam__error"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
-    </FrameLayout>
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:text="@string/conn_error"
+            android:textColor="@android:color/background_dark"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:visibility="invisible"/>
 
-    <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
-
-</RelativeLayout>
+</FrameLayout>
