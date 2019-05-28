@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,6 @@ class JSonParser {
             } else {
                 reader.skipValue();
             }
-
         }
         reader.endObject();
         return forms;
@@ -66,12 +66,10 @@ class JSonParser {
         }
         reader.endObject();
         return forms;
-
     }
 
     private List<WebCamForm> readArrayWebCams(JsonReader reader) throws IOException {
         List<WebCamForm> forms = new ArrayList<>();
-
         reader.beginArray();
         while (reader.hasNext()) {
             forms.add(readWebCamForm(reader));
@@ -109,6 +107,7 @@ class JSonParser {
         return new WebCamForm(id, title, getBitmapFromURL(image), time);
     }
 
+    @SuppressLint("SimpleDateFormat")
     private String[] readImageObject(JsonReader reader) throws IOException {
         String[] data = new String[2];
         reader.beginObject();
@@ -116,10 +115,19 @@ class JSonParser {
             String name = reader.nextName();
             switch (name) {
                 case "current":
-                    data[0] = readImage(reader);
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        if (reader.nextName().equals("preview")) {
+                            data[0] = reader.nextString();
+                        } else {
+                            reader.skipValue();
+                        }
+                    }
+                    reader.endObject();
                     break;
                 case "update":
-                    data[1] = parseTime(reader.nextString());
+                    data[1] = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").
+                            format(new java.util.Date(Long.parseLong(reader.nextString()) * 1000));
                     break;
                 default:
                     reader.skipValue();
@@ -128,26 +136,5 @@ class JSonParser {
         }
         reader.endObject();
         return data;
-    }
-
-    private String readImage(JsonReader reader) throws IOException {
-        String preview = null;
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("preview")) {
-                preview = reader.nextString();
-            } else {
-                reader.skipValue();
-            }
-        }
-        reader.endObject();
-        return preview;
-    }
-
-    private String parseTime(String time) {
-        @SuppressLint("SimpleDateFormat")
-        String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date(Long.parseLong(time) * 1000));
-        return date;
     }
 }
