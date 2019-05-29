@@ -97,7 +97,7 @@ public class CityCamActivity extends AppCompatActivity {
         progressView.setVisibility(View.VISIBLE);
 
         if (savedInstanceState != null) {
-            downloadTask = (DownloadTask) getLastNonConfigurationInstance();
+            downloadTask = (DownloadTask) getLastCustomNonConfigurationInstance();
         }
         if (downloadTask == null) {
             downloadTask = new DownloadTask(this);
