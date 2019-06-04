@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
-import ru.android_2019.citycam.CamDataSreen;
+import ru.android_2019.citycam.CamDataScreen;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class ParserJson {
-    public CamDataSreen camDataSreen = null;
+    public CamDataScreen camDataSreen = null;
 
-    public static List<CamDataSreen> getJsonStream (InputStream in) throws IOException {
+    public static List<CamDataScreen> getJsonStream (InputStream in) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         try {
             return  readMessagesArray(reader);
@@ -21,8 +21,8 @@ public class ParserJson {
             reader.close();
         }
     }
-    public static List<CamDataSreen> readMessagesArray(JsonReader reader) throws IOException {
-        List<CamDataSreen> messages = new ArrayList<>();
+    public static List<CamDataScreen> readMessagesArray(JsonReader reader) throws IOException {
+        List<CamDataScreen> messages = new ArrayList<>();
         reader.beginObject();
         while (reader.hasNext()) {
             String name = reader.nextName();
@@ -41,9 +41,9 @@ public class ParserJson {
         reader.endObject();
         return messages;
     }
-    private static List<CamDataSreen> readWebCams(JsonReader jsonReader) throws IOException {
+    private static List<CamDataScreen> readWebCams(JsonReader jsonReader) throws IOException {
         jsonReader.beginObject();
-        List <CamDataSreen> camDataSreens = new ArrayList<>();
+        List <CamDataScreen> camDataSreens = new ArrayList<>();
         int total=0;
         while (jsonReader.hasNext()) {
             String name = jsonReader.nextName();
@@ -58,8 +58,8 @@ public class ParserJson {
         jsonReader.endObject();
         return camDataSreens;
     }
-    private static List<CamDataSreen> readWebCamsList(JsonReader jsonReader) throws IOException {
-        List <CamDataSreen> webcams = new ArrayList<>();
+    private static List<CamDataScreen> readWebCamsList(JsonReader jsonReader) throws IOException {
+        List <CamDataScreen> webcams = new ArrayList<>();
         jsonReader.beginArray();
         while (jsonReader.hasNext()) {
             webcams.add(parserWebCam(jsonReader));
@@ -67,7 +67,7 @@ public class ParserJson {
         jsonReader.endArray();
         return webcams;
     }
-    public static CamDataSreen parserWebCam(JsonReader reader) throws IOException {
+    public static CamDataScreen parserWebCam(JsonReader reader) throws IOException {
         String camId = null;
         String camTitle = null;
         String camStatus = null;
@@ -94,7 +94,7 @@ public class ParserJson {
         }
         Log.w(TAG, "End parserWebCam");
         reader.endObject();
-        return new CamDataSreen(camId,camTitle,camStatus,url);
+        return new CamDataScreen(camId,camTitle,camStatus,url);
     }
     private static URL readUrl(JsonReader jsonReader) throws IOException {
         URL imageUrl = null;

@@ -3,14 +3,14 @@ package ru.android_2019.citycam;
 import android.graphics.Bitmap;
 import java.net.URL;
 
-public class CamDataSreen {
+public class CamDataScreen {
     private String camId;
     private String camTitle;
     private String camStatus;
     private URL url;
     private Bitmap bitmap =null ;
 
-    public CamDataSreen(String camId, String camTitle, String camStatus, URL url){
+    public CamDataScreen(String camId, String camTitle, String camStatus, URL url){
         this.camId = camId;
         this.camTitle = camTitle;
         this.camStatus = camStatus;

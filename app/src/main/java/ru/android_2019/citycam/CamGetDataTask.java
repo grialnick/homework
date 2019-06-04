@@ -18,22 +18,22 @@ import ru.android_2019.citycam.webcams.HttpConnect;
 import ru.android_2019.citycam.model.City;
 import ru.android_2019.citycam.webcams.ParserJson;
 
-public final class CamGetDataTask extends AsyncTask<City, Void, CamDataSreen>{
+public final class CamGetDataTask extends AsyncTask<City, Void, CamDataScreen>{
     private CityCamActivity cityCamActivity;
 
-    private CamDataSreen dataSreen = null;
+    private CamDataScreen dataScreen = null;
     CamGetDataTask (CityCamActivity city){
         this.cityCamActivity = city;
     }
 
     void RefreshSreen() {
-        if (cityCamActivity !=null && dataSreen != null) {
-            cityCamActivity.status.setText("Status: "+dataSreen.getCamStatus());
-            cityCamActivity.title.setText("Title: "+dataSreen.getCamTitle());
-            cityCamActivity.id.setText("ID Cam: "+dataSreen.getCamId());
+        if (cityCamActivity !=null && dataScreen != null) {
+            cityCamActivity.status.setText("Status: "+dataScreen.getCamStatus());
+            cityCamActivity.title.setText("Title: "+dataScreen.getCamTitle());
+            cityCamActivity.id.setText("ID Cam: "+dataScreen.getCamId());
             cityCamActivity.progressView.setVisibility(View.INVISIBLE);
-            cityCamActivity.camImageView.setImageBitmap(dataSreen.getImage());
-            cityCamActivity.id_cam = dataSreen.getCamId();
+            cityCamActivity.camImageView.setImageBitmap(dataScreen.getImage());
+            cityCamActivity.id_cam = dataScreen.getCamId();
             Log.w(TAG, "UpdateView Ok");
         } else {
             cityCamActivity.status.setText("Status: Empty");
@@ -47,7 +47,7 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataSreen>{
         cityCamActivity.progressView.setVisibility(View.VISIBLE);
     }
     @Override
-    protected void onPostExecute(CamDataSreen resul) {
+    protected void onPostExecute(CamDataScreen resul) {
         RefreshSreen();
     }
 
@@ -57,7 +57,7 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataSreen>{
     }
 
     @Override
-    protected CamDataSreen doInBackground(City... cities){
+    protected CamDataScreen doInBackground(City... cities){
         City city = cities[0];
         URL url = null;
 
@@ -70,27 +70,26 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataSreen>{
         try {
             InputStream stream = HttpConnect.httpUrlConnection(url);
             if (stream != null) {
-                List<CamDataSreen> dataSreenList = ParserJson.getJsonStream(stream);
+                List<CamDataScreen> dataSreenList = ParserJson.getJsonStream(stream);
                 if (!dataSreenList.isEmpty()) {
-                    dataSreen = dataSreenList.get(0);
-
-                    if (dataSreen.getCamId()  != cityCamActivity.id_cam ){
-                        Log.w(TAG, "Is not to cache:"+dataSreen.getCamId()+" "+cityCamActivity.id_cam);
-                        Bitmap img = CamGetImage(dataSreen.getUrl());
-                        cityCamActivity.lruCacheBitmap.putLruCache(dataSreen.getCamId(),img);
-                        dataSreen.putImage(cityCamActivity.lruCacheBitmap.getLruCache(dataSreen.getCamId()));
+                    dataScreen = dataSreenList.get(0);
+                    if (dataScreen.getCamId()  != cityCamActivity.id_cam ){
+                        Log.w(TAG, "Is not to cache:"+dataScreen.getCamId()+" "+cityCamActivity.id_cam);
+                        Bitmap img = CamGetImage(dataScreen.getUrl());
+                        cityCamActivity.lruCacheBitmap.putLruCache(dataScreen.getCamId(),img);
+                        dataScreen.putImage(cityCamActivity.lruCacheBitmap.getLruCache(dataScreen.getCamId()));
                     }else {
-                        dataSreen.putImage(cityCamActivity.lruCacheBitmap.getLruCache(dataSreen.getCamId()));
+                        dataScreen.putImage(cityCamActivity.lruCacheBitmap.getLruCache(dataScreen.getCamId()));
                     }
                     stream.close();
                 }
             }
         }catch (IOException e){
             e.printStackTrace();
-            Log.w(TAG, "End doInBackground:"+dataSreen.getCamId()+", "+dataSreen.getCamTitle()+
-                    ", "+dataSreen.getCamStatus()+", "+dataSreen.getUrl());
+            Log.w(TAG, "End doInBackground:"+dataScreen.getCamId()+", "+dataScreen.getCamTitle()+
+                    ", "+dataScreen.getCamStatus()+", "+dataScreen.getUrl());
         }
-        return dataSreen;
+        return dataScreen;
     }
     private Bitmap CamGetImage(URL url) throws IOException {
         Bitmap img = null;
