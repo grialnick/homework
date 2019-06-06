@@ -6,6 +6,7 @@
     android:background="#fff">
 
     <FrameLayout
+        android:id="@+id/image_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -27,6 +28,15 @@
             style="@android:style/Widget.Holo.Light.ProgressBar.Large.Inverse"/>
     </FrameLayout>
 
-    <!-- Добавьте сюда еще View с информацией о выбранном городе и показанной веб-камеры -->
+    <TextView
+        android:id="@+id/cam_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text=""
+        android:textSize="20dp"
+        android:layout_margin="20dp"
+        android:layout_below="@id/image_layout"
+        />
 
 </RelativeLayout>
