@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 
@@ -75,7 +78,7 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataScreen>{
                     dataScreen = dataSreenList.get(0);
                     if (dataScreen.getCamId()  != cityCamActivity.id_cam ){
                         Log.w(TAG, "Is not to cache:"+dataScreen.getCamId()+" "+cityCamActivity.id_cam);
-                        Bitmap img = CamGetImage(dataScreen.getUrl());
+                        Bitmap img = CamGetImage(dataScreen.getUrl(),dataScreen.getCamId());
                         cityCamActivity.lruCacheBitmap.putLruCache(dataScreen.getCamId(),img);
                         dataScreen.putImage(cityCamActivity.lruCacheBitmap.getLruCache(dataScreen.getCamId()));
                     }else {
@@ -91,8 +94,9 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataScreen>{
         }
         return dataScreen;
     }
-    private Bitmap CamGetImage(URL url) throws IOException {
+    private Bitmap CamGetImage(URL url,String id) throws IOException {
         Bitmap img = null;
+        File imgFile = new File( cityCamActivity.getCacheDir() + File.separator + id +".jpg");
         try {
             InputStream stream = HttpConnect.httpsUrlConnection(url);
             if (stream != null) {
@@ -101,6 +105,37 @@ public final class CamGetDataTask extends AsyncTask<City, Void, CamDataScreen>{
             }
         } catch (IOException e){
             e.printStackTrace();
+        }
+        if(img != null) {
+            try {
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(imgFile);
+                    img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                } finally {
+                    if (fos != null) fos.close();
+                    Log.w(TAG, "Save Img:"+dataScreen.getCamId()+", "+ imgFile.toString());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            if (!imgFile.exists()) {
+                try {
+                    FileInputStream fos = null;
+                    try {
+                        fos = new FileInputStream(imgFile);
+                        img = BitmapFactory.decodeStream(fos);
+                    } finally {
+                        if (fos != null) fos.close();
+                        Log.w(TAG, "Get Img:"+dataScreen.getCamId()+", "+ imgFile.toString());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else{
+                Log.w(TAG, "Unable Get Img:"+dataScreen.getCamId()+", "+ imgFile.toString());
+            }
         }
         return img;
     }
