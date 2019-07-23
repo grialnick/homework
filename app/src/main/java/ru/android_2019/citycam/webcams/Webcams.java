@@ -12,19 +12,14 @@ public final class Webcams {
 
     // Зарегистрируйтесь на http://ru.webcams.travel/developers/
     // и вставьте сюда ваш devid
-    private static final String DEV_ID = "Ваш devid";
-
-    private static final String BASE_URL = "http://api.webcams.travel/rest";
-
-    private static final String PARAM_DEVID = "devid";
-    private static final String PARAM_METHOD = "method";
-    private static final String PARAM_LAT = "lat";
-    private static final String PARAM_LON = "lng";
-    private static final String PARAM_FORMAT = "format";
-
-    private static final String METHOD_NEARBY = "wct.webcams.list_nearby";
-
-    private static final String FORMAT_JSON = "json";
+    private static final String DEV_ID = "4a28cfb056mshfb74e8ac73d240ap19719fjsn186d275cee30";
+    private static final String BASE_URL = "https://webcamstravel.p.rapidapi.com/webcams/list/nearby";
+    private static final long PARAM_BASE_RADIUS = 5;
+    private static final String HEADER_API_KEY = "X-RapidAPI-Key";
+    private static final String LOCAL = "ru";
+    private static final String PARAM_LOCAL = "lang";
+    private static final String PARAM_SHOW = "show";
+    private static final String BASE_SHOW_VALUE = "webcams:image,category,location";
 
     /**
      * Возвращает URL для выполнения запроса Webcams API для получения
@@ -32,14 +27,26 @@ public final class Webcams {
      */
     public static URL createNearbyUrl(double latitude, double longitude)
             throws MalformedURLException {
-        Uri uri = Uri.parse(BASE_URL).buildUpon()
-                .appendQueryParameter(PARAM_METHOD, METHOD_NEARBY)
-                .appendQueryParameter(PARAM_LAT, Double.toString(latitude))
-                .appendQueryParameter(PARAM_LON, Double.toString(longitude))
-                .appendQueryParameter(PARAM_DEVID, DEV_ID)
-                .appendQueryParameter(PARAM_FORMAT, FORMAT_JSON)
+        StringBuilder baseUrl = new StringBuilder(BASE_URL)
+                .append("=")
+                .append(latitude)
+                .append(",")
+                .append(longitude)
+                .append(",")
+                .append(PARAM_BASE_RADIUS);
+        Uri uri = Uri.parse(baseUrl.toString()).buildUpon()
+                .appendQueryParameter(PARAM_LOCAL, LOCAL)
+                .appendQueryParameter(PARAM_SHOW, BASE_SHOW_VALUE)
                 .build();
         return new URL(uri.toString());
+    }
+
+    public static String getHeaderApiKey() {
+        return HEADER_API_KEY;
+    }
+
+    public static String getDevId() {
+        return DEV_ID;
     }
 
     private Webcams() {}
